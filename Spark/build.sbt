@@ -1,9 +1,9 @@
-
 name := "Spark"
 
 version := "0.1"
 
-scalaVersion := "2.12.0"
+scalaVersion := "2.13.0"
+
 
 val logbackVersion = "1.3.0-alpha10"
 val sfl4sVersion = "2.0.0-alpha5"

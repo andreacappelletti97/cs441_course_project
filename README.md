@@ -14,7 +14,8 @@ Cosimo Sguanci
 UIN:
 
 Tru Nguyen
-UIN:
+UIN: 654073093
+tnguy276@uic.edu
 
 ## Project
 This repository is organized into X different subprojects.
