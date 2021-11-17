@@ -5,7 +5,11 @@ version := "0.1"
 scalaVersion := "3.0.2"
 
 assembly / assemblyMergeStrategy := {
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case PathList("META-INF", xs @ _*) =>
+    (xs map {_.toLowerCase}) match {
+      case ("manifest.mf" :: Nil) | ("index.list" :: Nil) | ("dependencies" :: Nil) => MergeStrategy.discard
+      case _ => MergeStrategy.last
+    }
   case x => MergeStrategy.first
 }
 
