@@ -8,7 +8,8 @@ UIN: 674197701
 acappe2@uic.edu
 
 Ajay Sagar
-UIN:
+UIN: 659867916
+anandi6@uic.edu
 
 Cosimo Sguanci
 UIN:
