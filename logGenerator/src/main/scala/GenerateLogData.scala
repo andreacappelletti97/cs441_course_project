@@ -59,30 +59,30 @@ object GenerateLogData:
     return Files.exists(Paths.get(path))
   }
 
-  def  writeLogLocally(path : String): Unit ={
+  def  writeLogLocally(path : String, fileName: String): Unit ={
     logger.info("Starting writingLocal function")
     //Get list of log files generated
-    val myFileList =  getListOfFiles("log/")
+    val myFileList =  getListOfFiles(config.getString("randomLogGenerator.writeLog.logDir"))
     //Get all logs lines to write them to S3 bucket
     val logLines = getFileLines(myFileList)
 
     logger.info("***WRITING OBJECT TO local storage")
-    val content = logLines.mkString(config.getString("randomLogGenerator.s3.newLine"))
+    val content = logLines.mkString(config.getString("randomLogGenerator.writeLog.newLine"))
     // PrintWriter
     import java.io._
-    val pw = new PrintWriter(new File("output/output.log" ))
+    val pw = new PrintWriter(new File(path + "/" + fileName ))
     pw.write(content)
     pw.close
 
-    Thread.sleep(config.getLong("randomLogGenerator.s3.timePeriod")) // wait for timePeriod millisecond
+    Thread.sleep(config.getLong("randomLogGenerator.writeLog.timePeriod")) // wait for timePeriod millisecond
     //Recursive call
-    writeLogLocally(path)
+    writeLogLocally(path, fileName)
 
   }
 
 
 //this is the main starting point for the log generator
-@main def runLogGenerator(path : String) =
+@main def runLogGenerator(fileName : String) =
   import Generation.RSGStateMachine.*
   import Generation.*
   import HelperUtils.Parameters.*
@@ -91,6 +91,7 @@ object GenerateLogData:
   logger.info("Log data generator started...")
   val INITSTRING = "Starting the string generation"
   val init = unit(INITSTRING)
+  val path = config.getString("randomLogGenerator.writeLog.path")
 
   //Check if the output directory exists
   if(!directoryExists(path)){
@@ -99,7 +100,7 @@ object GenerateLogData:
 
   //Continuosly updating log locally
   val uploadFuture = Future {
-    writeLogLocally(path)
+    writeLogLocally(path, fileName)
   }
   val logFuture = Future {
     LogMsgSimulator(init(RandomStringGenerator((Parameters.minStringLength, Parameters.maxStringLength), Parameters.randomSeed)), Parameters.maxCount)
