@@ -25,7 +25,7 @@ This repository is organized into X different subprojects.
 
 The following sections describe the functionalities implemented in all of them.
 
-# LogFileGenerator
+## LogFileGenerator
 
 The first project, logGenerator, provides an extension of the log generator coded by Professor Mark.
 
