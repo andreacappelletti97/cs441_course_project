@@ -31,6 +31,7 @@ The first project, logGenerator, provides an extension of the log generator code
 
 We have design the overall architecture following this schema
 
+![alt text](docs/architecture.png)
 
 All the instances of the logGenerator will pack their own data into a single log file. 
 
