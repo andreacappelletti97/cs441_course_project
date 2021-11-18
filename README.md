@@ -29,6 +29,60 @@ The following sections describe the functionalities implemented in all of them.
 
 The first project, logGenerator, provides an extension of the log generator coded by Professor Mark.
 
+We have design the overall architecture following this schema
+
+
+All the instances of the logGenerator will pack their own data into a single log file. 
+
+All the output log files of the instances will be store into a common folder <code>output</code> following the naming convention of output1.log for instance 1, output2.log for instance 2 ...  and so on.
+
+For example, if we instanciate 3 logGenerators, our output directory tree will look like this
+
+- output
+	- output1.log
+	- output2.log
+	- output3.log
+
+
+In order to run multiple instances of the logGenerator we can launch the script under the <code>jar</code> folder named <code>launch.sh</code>.
+
+
+```
+#!/bin/bash
+
+echo 'Welcome! Please insert the number of instance I have to generate'
+
+read instances
+
+echo 'Okay, I will run {$instances} instances'
+
+for i in $(seq 1 $instances);
+do
+    output_dir="output${i}.log"
+    echo 'Running instance number' $i
+    nohup java -jar logGenerator.jar $output_dir &
+done
+
+```
+
+To run it, first we have to give it the right permission
+
+```
+chmod +x launch.sh
+```
+Please make sure that the script and the jar <code>logGenerator.jar</code> are in the same directory.
+
+Now, we can run the script
+
+```
+./launch.sh
+```
+
+The script will ask us how many instances of the logGenerator we would like to run. Once we provide the number, it will automatically instanciate them for us.
+
+
+
+
 
 ## Programming technology
 All the simulations has been written in Scala using a Functional Programming approach.
