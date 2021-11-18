@@ -93,7 +93,7 @@ Once you have identified the PIDs, you can stop the process running
 kill PID
 ```
 
-Where PID is the process identifier of the logGenerator instance..
+Where PID is the process identifier of the logGenerator instance.
 
 
 ## Programming technology
