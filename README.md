@@ -68,21 +68,32 @@ done
 
 To run it, first we have to give it the right permission
 
-```
+```bash
 chmod +x launch.sh
 ```
 Please make sure that the script and the jar <code>logGenerator.jar</code> are in the same directory.
 
 Now, we can run the script
 
-```
+```bash
 ./launch.sh
 ```
 
 The script will ask us how many instances of the logGenerator we would like to run. Once we provide the number, it will automatically instanciate them for us.
 
+If you want to stop the instances running you have to identify their PID (process identifier). In order to do that run 
 
+```bash
+lsof logGenerator.jar
+```
 
+Once you have identified the PIDs, you can stop the process running
+
+```bash
+kill PID
+```
+
+Where PID is the process identifier of the logGenerator instance..
 
 
 ## Programming technology
