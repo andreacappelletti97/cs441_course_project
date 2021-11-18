@@ -48,7 +48,7 @@ For example, if we instanciate 3 logGenerators, our output directory tree will l
 In order to run multiple instances of the logGenerator we can launch the script under the <code>jar</code> folder named <code>launch.sh</code>.
 
 
-```
+```bash
 #!/bin/bash
 
 echo 'Welcome! Please insert the number of instance I have to generate'
