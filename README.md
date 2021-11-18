@@ -7,16 +7,16 @@ Andrea Cappelletti
 UIN: 674197701   
 acappe2@uic.edu
 
-Ajay Sagar
-UIN: 659867916
+Ajay Sagar  
+UIN: 659867916  
 anandi6@uic.edu
 
-Cosimo Sguanci
+Cosimo Sguanci  
 UIN:
 
-Tru Nguyen
-UIN: 654073093
-tnguy276@uic.edu
+Tru Nguyen  
+UIN: 654073093  
+tnguy276@uic.edu  
 
 ## Project
 This repository is organized into X different subprojects.
