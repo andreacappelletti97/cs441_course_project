@@ -12,7 +12,8 @@ UIN: 659867916
 anandi6@uic.edu
 
 Cosimo Sguanci  
-UIN:
+UIN: 670778611
+csguan2@uic.edu
 
 Tru Nguyen  
 UIN: 654073093  
