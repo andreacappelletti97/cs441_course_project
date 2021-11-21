@@ -23,6 +23,7 @@ tnguy276@uic.edu
 This repository is organized into X different subprojects.
 
 - LogFileGenerator
+- MonitoringService
 
 The following sections describe the functionalities implemented in all of them.
 
@@ -34,9 +35,9 @@ We have design the overall architecture following this schema
 
 ![alt text](docs/architecture.png)
 
-All the instances of the logGenerator will pack their own data into a single log file. 
+All the instances of the logGenerator will pack their own data, that are generated over multiple days, into a single log file. 
 
-All the output log files of the instances will be store into a common folder <code>output</code> following the naming convention of output1.log for instance 1, output2.log for instance 2 ...  and so on.
+All the output log files of the instances will be store into a common folder <code>output</code>following the naming convention of output1.log for instance 1, output2.log for instance 2 ...  and so on.
 
 For example, if we instanciate 3 logGenerators, our output directory tree will look like this
 
@@ -46,7 +47,7 @@ For example, if we instanciate 3 logGenerators, our output directory tree will l
 	- output3.log
 
 
-In order to run multiple instances of the logGenerator we can launch the script under the <code>jar</code> folder named <code>launch.sh</code>.
+In order to run multiple instances of the logGenerator on our EC2 instance we can launch the script under the <code>jar</code> folder named <code>launch.sh</code>.
 
 
 ```bash
@@ -80,7 +81,8 @@ Now, we can run the script
 ./launch.sh
 ```
 
-The script will ask us how many instances of the logGenerator we would like to run. Once we provide the number, it will automatically instanciate them for us.
+The script will ask us how many instances of the logGenerator we would like to run. 
+Once we provide the number, it will automatically instanciate them for us in background.
 
 If you want to stop the instances running you have to identify their PID (process identifier). In order to do that run 
 
@@ -95,6 +97,17 @@ kill PID
 ```
 
 Where PID is the process identifier of the logGenerator instance.
+
+
+## MonitoringService
+
+The MonitoringService is about the Akka actors that are constantly looking for changes in the log files using the Java NIO technology.
+
+Every logGenerator instance has an actor associated to it and the actors is responsible for tracking the current status and any changes of the log file.
+
+In order to instanciate all the actors, we should specify the absolute path of the directory they have to observe into the application config and the number of instances of the logGenerator that we are going to run.
+
+The application will automatically take care of the deployment of those actors.
 
 
 ## Programming technology
