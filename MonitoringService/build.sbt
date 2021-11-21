@@ -54,6 +54,7 @@ val akkaHttpVersion = "10.2.6"
 val akkaStreamVersion = "2.6.17"
 val akkaHttpSprayJsonVersion = "10.2.6"
 val scalajVersion = "2.4.2"
+val scalaRedisVersion = "3.41"
 
 resolvers += Resolver.jcenterRepo
 
@@ -82,6 +83,7 @@ lazy val root = (project in file(".")).
       "com.typesafe.akka" %% "akka-pki" % akkaStreamVersion,
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaStreamVersion % Test,
       "com.typesafe.akka" %% "akka-stream-testkit" % akkaStreamVersion % Test,
+      "net.debasishg" %% "redisclient" % scalaRedisVersion
     ),
     assemblyJarName := "LogFinderServer.jar",
   )

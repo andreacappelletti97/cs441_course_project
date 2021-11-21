@@ -1,6 +1,7 @@
 package actors
 
 import akka.actor.Actor
+import com.redis.RedisClient
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.FileUtils
 import org.slf4j.{Logger, LoggerFactory}
@@ -19,7 +20,7 @@ class LogMonitorActor extends Actor {
 
   private val config: Config = ConfigFactory.load()
   private val logger: Logger = LoggerFactory.getLogger(classOf[LogMonitorActor])
-  private var lastTimestamp: String = _ // Last analyzed timestamp. Should use redis in future versions to achieve persistence and remove mutable references
+  private val redis: RedisClient = setupRedis()
 
   def receive(): Receive = {
     case m: LogMonitorMessage => onNewMessage(m)
@@ -85,14 +86,18 @@ class LogMonitorActor extends Actor {
     val timeInterval: Map[String, LocalTime] = Map.apply("start" -> startTime, "end" -> endTime)
     val logFile: File = new File(filePath)
 
+    val redisKey: String = config.getString("monitoringService.redisKeyLastTimeStamp")
+    val lastTimestamp: String = redis.get(key = redisKey).orNull
+
     // Now I perform a binary search on the file (using random access) to search for the last timestamp analyzed from the Actor OR the first timestamp
     val firstTimestampToSearch: LocalTime = if (lastTimestamp != null) LocalTime.parse(lastTimestamp) else timeInterval("start")
     val skipFirstTimestamp: Boolean = lastTimestamp != null
 
     val lines: List[String] = FileUtils.readLines(logFile, "UTF-8").asScala.toList
+    val lineSeparator: String =  config.getString("monitoringService.lineSeparator")
 
     val newLogs: List[String] = lines.filter(line => {
-      val tokens = line.split(" ") // todo: add in config
+      val tokens = line.split(lineSeparator)
       val timestamp: LocalTime = LocalTime.parse(tokens(0))
 
       (timestamp.equals(firstTimestampToSearch) && !skipFirstTimestamp) ||
@@ -101,9 +106,13 @@ class LogMonitorActor extends Actor {
     })
 
     if (newLogs.nonEmpty) {
-      lastTimestamp = newLogs.last.split(" ")(0) // todo: add in config
+      redis.set(key = redisKey, value = newLogs.last.split(lineSeparator)(0))
       // communication with Kafka component happens here
       newLogs.foreach(println)
     }
+  }
+
+  private def setupRedis(): RedisClient = {
+    new RedisClient("localhost", 6379)
   }
 }
