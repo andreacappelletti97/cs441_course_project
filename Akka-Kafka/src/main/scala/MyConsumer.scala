@@ -1,4 +1,3 @@
-import Publisher.{LogMessage, bootstrapServers}
 import akka.Done
 import akka.actor.ActorSystem
 import akka.kafka.scaladsl.{Committer, Consumer}
