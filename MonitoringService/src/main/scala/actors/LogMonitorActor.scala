@@ -55,9 +55,8 @@ class LogMonitorActor extends Actor {
               case `logFileName` => onNewLogs(s"${directoryPath}/$fileName") // we only observe one file per actor
               case _ => logger.info("Not a file observed by this actor...")
             }
-          case _ => {
+          case _ =>
             logger.warn("Event not recognized")
-          }
         }
       })
 
@@ -86,10 +85,9 @@ class LogMonitorActor extends Actor {
     val timeInterval: Map[String, LocalTime] = Map.apply("start" -> startTime, "end" -> endTime)
     val logFile: File = new File(filePath)
 
-    val redisKey: String = config.getString("monitoringService.redisKeyLastTimeStamp")
+    val redisKey: String = s"${config.getString("monitoringService.redisKeyLastTimeStamp")}-${logFile.getName}"
     val lastTimestamp: String = redis.get(key = redisKey).orNull
 
-    // Now I perform a binary search on the file (using random access) to search for the last timestamp analyzed from the Actor OR the first timestamp
     val firstTimestampToSearch: LocalTime = if (lastTimestamp != null) LocalTime.parse(lastTimestamp) else timeInterval("start")
     val skipFirstTimestamp: Boolean = lastTimestamp != null
 
