@@ -17,13 +17,14 @@ import utils.LogUtils._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class MonitorKafkaProducer(implicit actorSystem: ActorSystem) {
+class MonitorKafkaProducer(actorSystem: ActorSystem) {
   case class LogMessage(timestamp: String, level: String, message: String)
   implicit val logMessage = jsonFormat3(LogMessage)
+  implicit val system = actorSystem
 
   private val config: Config = ConfigFactory.load()
   private val logger: Logger = LoggerFactory.getLogger(classOf[MonitorKafkaProducer])
-  private val producerConfig: Config =  config.getConfig("akka.kafka.producer")
+  private val producerConfig: Config =  system.settings.config.getConfig("akka.kafka.producer")
   private val topic = config.getString("kafka.topic")
 
   val bootstrapServers = config.getString("kafka.bootstrapServers")

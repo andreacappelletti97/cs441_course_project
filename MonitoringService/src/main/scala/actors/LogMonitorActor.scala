@@ -22,8 +22,7 @@ class LogMonitorActor extends Actor {
   private val config: Config = ConfigFactory.load()
   private val logger: Logger = LoggerFactory.getLogger(classOf[LogMonitorActor])
   private val redis: RedisClient = setupRedis()
-  implicit val system = context.system
-  private val kafka: MonitorKafkaProducer = new MonitorKafkaProducer(system)
+  private val kafka: MonitorKafkaProducer = new MonitorKafkaProducer(context.system)
 
   def receive(): Receive = {
     case m: LogMonitorMessage => onNewMessage(m)
