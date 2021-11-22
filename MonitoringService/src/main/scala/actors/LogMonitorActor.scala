@@ -3,6 +3,7 @@ package actors
 import akka.actor.Actor
 import com.redis.RedisClient
 import com.typesafe.config.{Config, ConfigFactory}
+import kafka.MonitorKafkaProducer
 import org.apache.commons.io.FileUtils
 import org.slf4j.{Logger, LoggerFactory}
 import utils.{MonitoringMessageTypes, TimestampIntervalBinarySearch}
@@ -21,6 +22,8 @@ class LogMonitorActor extends Actor {
   private val config: Config = ConfigFactory.load()
   private val logger: Logger = LoggerFactory.getLogger(classOf[LogMonitorActor])
   private val redis: RedisClient = setupRedis()
+  implicit val system = context.system
+  private val kafka: MonitorKafkaProducer = new MonitorKafkaProducer(system)
 
   def receive(): Receive = {
     case m: LogMonitorMessage => onNewMessage(m)
@@ -108,6 +111,7 @@ class LogMonitorActor extends Actor {
       redis.set(key = redisKey, value = newLogs.last.split(lineSeparator)(0))
       // communication with Kafka component happens here
       newLogs.foreach(println)
+      kafka.publishToKafka(newLogs)
     }
   }
 

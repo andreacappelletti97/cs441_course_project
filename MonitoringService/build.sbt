@@ -2,7 +2,7 @@ name := "MonitoringService"
 
 version := "0.1"
 
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.6"
 
 val logbackVersion = "1.3.0-alpha10"
 val sfl4sVersion = "2.0.0-alpha5"
@@ -36,13 +36,15 @@ lazy val root = (project in file(".")).
       "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
       "com.typesafe.akka" %% "akka-stream" % akkaStreamVersion,
       "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpSprayJsonVersion,
+      "com.typesafe.akka" %% "akka-stream-kafka" % "2.1.1",
       "com.typesafe.akka" %% "akka-http2-support" % akkaHttpVersion,
       "com.typesafe.akka" %% "akka-actor-typed" % akkaStreamVersion,
       "com.typesafe.akka" %% "akka-discovery" % akkaStreamVersion,
       "com.typesafe.akka" %% "akka-pki" % akkaStreamVersion,
       "com.typesafe.akka" %% "akka-actor-testkit-typed" % akkaStreamVersion % Test,
       "com.typesafe.akka" %% "akka-stream-testkit" % akkaStreamVersion % Test,
-      "net.debasishg" %% "redisclient" % scalaRedisVersion
+      "net.debasishg" %% "redisclient" % scalaRedisVersion,
+      "io.spray" %%  "spray-json" % "1.3.6"
     ),
     assemblyJarName := "LogFinderServer.jar",
   )
