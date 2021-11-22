@@ -5,7 +5,7 @@ import com.redis.RedisClient
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.FileUtils
 import org.slf4j.{Logger, LoggerFactory}
-import utils.MonitoringMessageTypes
+import utils.{MonitoringMessageTypes, TimestampIntervalBinarySearch}
 
 import java.io.File
 import java.nio.file.StandardWatchEventKinds._
@@ -98,19 +98,11 @@ class LogMonitorActor extends Actor {
     val lastTimestamp: String = redis.get(key = redisKey).orNull
 
     val firstTimestampToSearch: LocalTime = if (lastTimestamp != null) LocalTime.parse(lastTimestamp) else timeInterval("start")
-    val skipFirstTimestamp: Boolean = lastTimestamp != null
 
-    val lines: List[String] = FileUtils.readLines(logFile, "UTF-8").asScala.toList
+    val lines: Vector[String] = FileUtils.readLines(logFile, "UTF-8").asScala.toVector
     val lineSeparator: String =  config.getString("monitoringService.lineSeparator")
 
-    val newLogs: List[String] = lines.filter(line => {
-      val tokens = line.split(lineSeparator)
-      val timestamp: LocalTime = LocalTime.parse(tokens(0))
-
-      (timestamp.equals(firstTimestampToSearch) && !skipFirstTimestamp) ||
-        timestamp.equals(timeInterval("end")) ||
-        (timestamp.isAfter(firstTimestampToSearch) && timestamp.isBefore(timeInterval("end")))
-    })
+    val newLogs: Vector[String] = TimestampIntervalBinarySearch.binarySearch(firstTimestampToSearch, timeInterval("end"), lines, config)
 
     if (newLogs.nonEmpty) {
       redis.set(key = redisKey, value = newLogs.last.split(lineSeparator)(0))
