@@ -101,14 +101,28 @@ Where PID is the process identifier of the logGenerator instance.
 
 ## MonitoringService
 
-The MonitoringService is about the Akka actors that are constantly looking for changes in the log files using the Java NIO technology.
+The `MonitoringService` is composed by the Akka actors that are constantly looking for changes in the log files using the Java NIO technology.
 
-Every logGenerator instance has an actor associated to it and the actors is responsible for tracking the current status and any changes of the log file.
+Based on a parameter that can be configured in the `application.conf` file, the idea is to instantiate one actor for each Log Generator, thus having one Akka actor for each log file that has to be monitored. The parameters that have to be configured are the following:
 
-In order to instanciate all the actors, we should specify the absolute path of the directory they have to observe into the application config and the number of instances of the logGenerator that we are going to run.
+```
+monitoringService {
+    numOfLogGeneratorInstances = 2 # Should be equal to the number of deployed Log Generator instances
+    basePath = "" # Contains the ABSOLUTE base path corresponding to the directory containing log files
+    timeWindow = {
+        start = "11:44:27"
+        end = "11:44:27.999"
+    },
+    redisKeyLastTimeStamp = "LAST_TIMESTAMP"
+    lineSeparator = " "
+}
+```
 
-The application will automatically take care of the deployment of those actors.
+As we can see, the base path corresponding to the directory that Akka actors are tracking for changes. In addition, it is necessary to configure the time window that we want to consider when we are searching in log files in response to changes.
 
+Every time there a log file is updated and the corresponding Akka actor reacts to it, the last timestamp that has already been passed to the Kafka component for the specific log file is stored in a local Redis instance. 
+This allows us to stop and restart the `MonitoringService` without notifying again the Kafka component about logs that were already been streamed before. 
+This means that the Redis Instance will contain N keys `LAST_TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored.
 
 ## Programming technology
 All the simulations has been written in Scala using a Functional Programming approach.
