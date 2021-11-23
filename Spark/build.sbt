@@ -11,10 +11,12 @@ val apacheCommonIOVersion = "2.11.0"
 val scalacticVersion = "3.2.9"
 val generexVersion = "1.0.2"
 val sparkVersion = "3.2.0"
+val awsSesSDK = "1.12.115"
 
 resolvers += Resolver.jcenterRepo
 
 libraryDependencies ++= Seq(
+  "com.amazonaws" % "aws-java-sdk-ses" % awsSesSDK,
   "ch.qos.logback" % "logback-core" % logbackVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
   "org.slf4j" % "slf4j-api" % sfl4sVersion,
