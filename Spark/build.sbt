@@ -2,7 +2,7 @@ name := "Spark"
 
 version := "0.1"
 
-scalaVersion := "2.13.0"
+scalaVersion := "2.12.0"
 
 val logbackVersion = "1.3.0-alpha10"
 val sfl4sVersion = "2.0.0-alpha5"
@@ -12,6 +12,7 @@ val scalacticVersion = "3.2.9"
 val generexVersion = "1.0.2"
 val sparkVersion = "3.2.0"
 val awsSesSDK = "1.12.115"
+val circe = "0.14.1"
 
 resolvers += Resolver.jcenterRepo
 
@@ -31,4 +32,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % sparkVersion,
   "org.apache.spark" %% "spark-sql" % sparkVersion,
   "org.apache.spark" %% "spark-streaming-kafka-0-10" % sparkVersion,
+  "com.datastax.spark" %% "spark-cassandra-connector" % "3.1.0",
+  "io.circe" %% "circe-core" % circe,
+  "io.circe" %% "circe-generic" % circe,
+  "io.circe" %% "circe-parser" % circe,
 )
