@@ -45,10 +45,7 @@ object TimestampIntervalBinarySearch {
 
     val middleTime: LocalTime = LocalTime.parse(logs(length / 2).split(lineSplitter)(0))
 
-    val isAfterTheStart: Boolean = middleTime.isAfter(start)
-    val isBeforeTheEnd: Boolean = middleTime.isBefore(end)
-
-    if (isAfterTheStart && isBeforeTheEnd) {
+    if (isInInterval(middleTime, start, end)) {
       // found time interval
       // we have to collect all the logs that are in the interval
 
@@ -56,10 +53,10 @@ object TimestampIntervalBinarySearch {
       val afterLogs: Vector[String] = findAllLogsBeforeOrAfter(logs, Vector.empty, (length / 2) + 1, start, end, Operation.FIND_AFTER, lineSplitter)
       val foundLogs: Vector[String] = beforeLogs ++ Vector(logs(length / 2)) ++ afterLogs
 
-      return foundLogs
+      foundLogs
     }
 
-    else if (isAfterTheStart) {
+    else if (middleTime.isAfter(start)) {
       // we take the 1st half
       binarySearchInner(start, end, logs.slice(0, (length / 2) - 1), lineSplitter)
     }
@@ -76,16 +73,23 @@ object TimestampIntervalBinarySearch {
 
     val time: LocalTime = LocalTime.parse(logs(index).split(lineSplitter)(0))
 
-    val isAfterTheStart: Boolean = time.isAfter(start)
-    val isBeforeTheEnd: Boolean = time.isBefore(end)
-
-    if (isAfterTheStart && isBeforeTheEnd) {
+    if (isInInterval(time, start, end)) {
       val newLog: String = logs(index)
       val newFoundLogs: Vector[String] = foundLogs ++ Vector(newLog)
       val newIndex = if (operation == Operation.FIND_BEFORE) index -1 else index + 1
       return findAllLogsBeforeOrAfter(logs, newFoundLogs, newIndex, start, end, operation, lineSplitter)
     }
 
-    return foundLogs
+    foundLogs
+  }
+
+  private def isInInterval(time: LocalTime, start: LocalTime, end: LocalTime): Boolean = {
+    val isStart: Boolean = time.equals(start)
+    val isEnd: Boolean = time.equals(end)
+
+    val isAfterTheStart: Boolean = time.isAfter(start)
+    val isBeforeTheEnd: Boolean = time.isBefore(end)
+
+    isStart || isEnd || (isAfterTheStart && isBeforeTheEnd)
   }
 }

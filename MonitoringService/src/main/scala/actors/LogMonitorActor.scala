@@ -26,7 +26,7 @@ class LogMonitorActor extends Actor {
 
   def receive(): Receive = {
     case m: LogMonitorMessage => onNewMessage(m)
-    case _ => println("Message not recognized")
+    case _ => logger.warn("Message not recognized")
   }
 
   private def onNewMessage(logMonitorMessage: LogMonitorMessage): Unit = {
@@ -77,39 +77,34 @@ class LogMonitorActor extends Actor {
 
 
   private def onNewLogs(filePath: String): Unit = {
-    // If more than one Time Interval
-
-    //    val timeWindows = config.getObjectList("monitoringService.timeWindow").asScala
-    //
-    //    val timeIntervals: List[Map[String, LocalTime]] = timeWindows.map(timeInterval => {
-    //      val interval = timeInterval.toConfig
-    //      val startTime: LocalTime = LocalTime.parse(interval.getString("start"))
-    //      val endTime: LocalTime = LocalTime.parse(interval.getString("end"))
-    //
-    //      Map.apply("start" -> startTime, "end" -> endTime)
-    //    }).toList
-
-    val timeWindow = config.getObject("monitoringService.timeWindow")
-    val startTime: LocalTime = LocalTime.parse(timeWindow.toConfig.getString("start"))
-    val endTime: LocalTime = LocalTime.parse(timeWindow.toConfig.getString("end"))
-
-    val timeInterval: Map[String, LocalTime] = Map.apply("start" -> startTime, "end" -> endTime)
     val logFile: File = new File(filePath)
-
     val redisKey: String = s"${config.getString("monitoringService.redisKeyLastTimeStamp")}-${logFile.getName}"
     val lastTimestamp: String = redis.get(key = redisKey).orNull
-
-    val firstTimestampToSearch: LocalTime = if (lastTimestamp != null) LocalTime.parse(lastTimestamp) else timeInterval("start")
-
+    val lineSeparator: String = config.getString("monitoringService.lineSeparator")
     val lines: Vector[String] = FileUtils.readLines(logFile, "UTF-8").asScala.toVector
-    val lineSeparator: String =  config.getString("monitoringService.lineSeparator")
 
-    val newLogs: Vector[String] = TimestampIntervalBinarySearch.binarySearch(firstTimestampToSearch, timeInterval("end"), lines, config)
+    if (lines.isEmpty) {
+      // The file has been created but it's empty
+      return
+    }
+
+    val singleTimeWindow = config.getBoolean("monitoringService.singleTimeWindow")
+
+    // If we have to consider a single time window for all the log files, we pick the first time window in config
+    val indexOfListener: Int = if(singleTimeWindow) 0 else logFile.getName.charAt(logFile.getName.indexOf(".log") - 1).asDigit - 1
+    val timeWindows = config.getObjectList("monitoringService.timeWindows").asScala
+    val timeInterval = timeWindows(indexOfListener)
+
+    val startTime: LocalTime = LocalTime.parse(timeInterval.toConfig.getString("start"))
+    val endTime: LocalTime = LocalTime.parse(timeInterval.toConfig.getString("end"))
+
+    val firstTimestampToSearch: LocalTime = if (lastTimestamp != null) LocalTime.parse(lastTimestamp) else startTime
+
+    val newLogs: Vector[String] = TimestampIntervalBinarySearch.binarySearch(firstTimestampToSearch, endTime, lines, config)
 
     if (newLogs.nonEmpty) {
       redis.set(key = redisKey, value = newLogs.last.split(lineSeparator)(0))
       // communication with Kafka component happens here
-      newLogs.foreach(println)
       kafka.publishToKafka(newLogs)
     }
   }
