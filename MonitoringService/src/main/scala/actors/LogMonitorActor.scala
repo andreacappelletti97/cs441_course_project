@@ -21,7 +21,7 @@ class LogMonitorActor extends Actor {
 
   private val config: Config = ConfigFactory.load()
   private val logger: Logger = LoggerFactory.getLogger(classOf[LogMonitorActor])
-  private val redis: RedisClient = setupRedis()
+  private val redis: RedisClient = setupRedis(config)
   private val kafka: MonitorKafkaProducer = new MonitorKafkaProducer(context.system)
 
   def receive(): Receive = {
@@ -109,7 +109,7 @@ class LogMonitorActor extends Actor {
     }
   }
 
-  private def setupRedis(): RedisClient = {
-    new RedisClient("localhost", 6379)
+  private def setupRedis(config: Config): RedisClient = {
+    new RedisClient(config.getString("monitoringService.redisHost"), config.getInt("monitoringService.redisPort"))
   }
 }
