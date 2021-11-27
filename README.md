@@ -165,7 +165,7 @@ Where PID is the process identifier of the logGenerator instance.
 
 ### YouTube Video
 
-A video explanation is available at this url: 
+A video explanation is available at this url: https://youtu.be/-hoUyyI6AZU
 
 
 ## MonitoringService
