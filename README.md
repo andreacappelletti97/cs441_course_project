@@ -47,7 +47,72 @@ For example, if we instanciate 3 logGenerators, our output directory tree will l
 	- output3.log
 
 
-In order to run multiple instances of the logGenerator on our EC2 instance we can launch the script under the <code>jar</code> folder named <code>launch.sh</code>.
+To run the logGenerator on a EC2 instance follow the steps described below.
+
+First thing first, log into your AWS console and start a Linux EC2 instance.
+
+In order to do that, select launch instance and select
+
+<code>Amazon Linux 2 AMI (HVM), SSD Volume Type - ami-03ab7423a204da002 (64-bit x86) / ami-0fb4cfafeead46a44 (64-bit Arm)</code>
+
+Select <code>64-bit (x86)</code> and then <code>t2.micro</code>.
+
+Make sure that SSH is enabled under security groups <code>SSH TCP 22 0.0.0.0/0 </code> and add your keypair when asked.
+
+Now you should be able to login into your EC2 instance via SSH
+
+In order to do so, run the command
+
+```shell
+ssh -i "linux.pem" ec2-user@ec2-54-241-68-63.us-west-1.compute.amazonaws.com
+```
+
+Where <code>linux.pem</code> is the name of your key and
+
+<code>ec2-user@ec2-54-241-68-63.us-west-1.compute.amazonaws.com</code>
+
+is the address of your instance.
+
+
+Once you log in into your instance, in order to run the logGenerator you have to install
+- Java SDK 8
+- Scala
+- SBT
+
+
+
+### Install Java
+
+To install Java, run the following command
+
+```shell
+sudo yum install java-1.8.0-openjdk
+```
+You may encounter the following error while running yum
+```shell
+File contains no section headers. file: file:///etc/yum.repos.d/bintray-sbt-rpm.repo
+```
+If you encounter that error, run
+Solution
+```shell
+rm /etc/yum.repos.d/bintray-sbt-rpm.repo
+```
+In order to solve it, the go ahed and install Scala and SBT
+
+### Install Scala
+
+```shell
+wget http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.rpm
+sudo yum install scala-2.11.8.rpm
+```
+### Install sbt
+```shell
+curl -L https://www.scala-sbt.org/sbt-rpm.repo > sbt-rpm.repo
+sudo mv sbt-rpm.repo /etc/yum.repos.d/
+sudo yum install sbt
+```
+
+Now that we installed all the requirements to run the logGenerator, we are ready to run multiple instances of the logGenerator on our EC2 instance we can launch the script under the <code>jar</code> folder named <code>launch.sh</code>.
 
 
 ```bash
@@ -97,6 +162,10 @@ kill PID
 ```
 
 Where PID is the process identifier of the logGenerator instance.
+
+### YouTube Video
+
+A video explanation is available at this url: https://youtu.be/-hoUyyI6AZU
 
 
 ## MonitoringService
