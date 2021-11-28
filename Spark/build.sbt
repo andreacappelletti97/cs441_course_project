@@ -36,4 +36,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-core" % circe,
   "io.circe" %% "circe-generic" % circe,
   "io.circe" %% "circe-parser" % circe,
+
+  "software.aws.mcs" % "aws-sigv4-auth-cassandra-java-driver-plugin" % "4.0.4",
+  "com.datastax.oss" % "java-driver-core" % "4.13.0",
 )
