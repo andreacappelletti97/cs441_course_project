@@ -1,0 +1,24 @@
+{
+  "BrokerNodeGroupInfo": {
+    "BrokerAZDistribution": "DEFAULT",
+    "InstanceType": "kafka.t3.small",
+    "ClientSubnets": [
+      "subnet-08780635206a03cd4",
+      "subnet-06638c73d903dccd4",
+      "subnet-08c12b4cc32fb389b"
+    ],
+    "SecurityGroups": [
+      "sg-0802d303bcf93c80c"
+    ]
+  },
+  "ClusterName": "AWSKafkaCS441",
+  "EncryptionInfo": {
+    "EncryptionInTransit": {
+      "InCluster": true,
+      "ClientBroker": "TLS"
+    }
+  },
+  "EnhancedMonitoring": "PER_TOPIC_PER_BROKER",
+  "KafkaVersion": "2.2.1",
+  "NumberOfBrokerNodes": 3
+}
