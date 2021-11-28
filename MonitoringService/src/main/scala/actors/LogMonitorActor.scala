@@ -36,8 +36,8 @@ class LogMonitorActor extends Actor {
   }
 
   private def startMonitoring(directoryPath: String, logFileName: String): Unit = {
-    initialCheckOnLogs(Path.of(directoryPath), logFileName)
-    watchLogs(Path.of(directoryPath), logFileName)
+    initialCheckOnLogs(Paths.get(directoryPath), logFileName)
+    watchLogs(Paths.get(directoryPath), logFileName)
   }
 
   // Used when the Akka actors are started in order to instantly get the latest log changes
