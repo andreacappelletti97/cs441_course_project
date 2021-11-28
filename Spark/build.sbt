@@ -13,10 +13,12 @@ val generexVersion = "1.0.2"
 val sparkVersion = "3.2.0"
 val awsSesSDK = "1.12.115"
 val circe = "0.14.1"
+val freeMarkerVersion = "2.3.14"
 
 resolvers += Resolver.jcenterRepo
 
 libraryDependencies ++= Seq(
+  "org.freemarker" % "freemarker" % freeMarkerVersion,
   "com.amazonaws" % "aws-java-sdk-ses" % awsSesSDK,
   "ch.qos.logback" % "logback-core" % logbackVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
