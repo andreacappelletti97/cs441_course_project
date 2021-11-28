@@ -7,8 +7,8 @@ import com.amazonaws.services.simpleemail.model._
 
 import java.io._
 import freemarker.template._
+import scala.collection.JavaConverters._
 
-import scala.collection.mutable.ArrayBuffer
 
 class EmailService {}
 
@@ -19,22 +19,27 @@ object EmailService extends App{
     case None => throw new RuntimeException("Can't obtain reference to the config")
   }
 
+  //Setup the email sender and receiver
   val FROM = config.getString("emailService.from")
   val TO = config.getString("emailService.to")
+
+  //Freemarker configuration
   val cfg = new Configuration
   val template = cfg.getTemplate(config.getString("emailService.emailTemplateDir"))
 
-  println(populateTemplate(List("ciao", "prova")))
+  populateTemplate(List("Message1", "Message2", "Message3"))
 
   def populateTemplate(logData : List[String]): String ={
     val data = scala.collection.mutable.Map[String, Object]()
-    val logDataArray = new ArrayBuffer[String]
-    logData.foreach(log => logDataArray += log)
-    data.put("logs", logDataArray)
+    data += ("message1" -> logData(0))
+    data += ("message2" -> logData(1))
+    data += ("message3" -> logData(2))
+
     // write to string
     val output = new StringWriter
-    template.process(data, output)
+    template.process(data.asJava, output)
     val stringResult = output.toString
+    sendEmail(config.getString("emailService.subject"), stringResult, stringResult)
     stringResult
   }
 

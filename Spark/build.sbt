@@ -13,7 +13,7 @@ val generexVersion = "1.0.2"
 val sparkVersion = "3.2.0"
 val awsSesSDK = "1.12.115"
 val circe = "0.14.1"
-val freeMarkerVersion = "2.3.14"
+val freeMarkerVersion = "2.3.9"
 
 resolvers += Resolver.jcenterRepo
 
