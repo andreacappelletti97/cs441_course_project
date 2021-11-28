@@ -193,6 +193,99 @@ Every time there a log file is updated and the corresponding Akka actor reacts t
 This allows us to stop and restart the `MonitoringService` without notifying again the Kafka component about logs that were already been streamed before. 
 This means that the Redis Instance will contain N keys `LAST_TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored.
 
+## AWS MSK Cluster
+
+In this project we will be using the AWS msk service to create a kafka cluster to which messages will be sent from the Log Monitor
+
+Below are the steps to be followed to create a msk server and deploy the Log Monitor service:-
+1. We first need to create a VPC that can house an instance of the Kafka cluster and the EC2 instances containing the Log monitor service.
+2. From the AWS console navigate to the VPC service and click on "Launch VPC Wizard"
+3. Follow the steps in the wizard, provide a name to the vpc and choose an appropriate availability zone and choose "Create VPC"
+4. Once create keep track of the VPC ID of the new VPC created.
+
+Next we will create multiple subnets for our VPC. We will have a total of 3 subnets, each of which will be used by a kafka broker. This allows us to have multiple instances of Kafka allowing high availability and fault tolerance.
+1. From the VPC console, navigate into the subnets section. From the list of subnets copy the Route table value for the default subnet already present for the VPC
+2. Add two more subnets to the VPC by providing ip addresses ```10.0.1.0/24``` and ```10.0.2.0/24``` respectively and adding the route table value copied in the previous step.
+3. Make sure the availability zones for the subnets are in the same region, for eg: us-west-1a, us-west-1b, us-west-1c.
+
+Next we will deploy our MSK cluster into our VPC using an IAC configuration file.
+
+1. From the VPC console, navigate to the subnets tab and copy the subnetIds of the 3 subnets previously created.
+2. Then navigate to the Security Groups tab and copy the security group id for the VPC.
+3. We then use the values fron the previous steps to create a IAC configuration as shown below
+
+```json
+{
+  "BrokerNodeGroupInfo": {
+    "BrokerAZDistribution": "DEFAULT",
+    "InstanceType": "kafka.t3.small",
+    "ClientSubnets": [
+      "subnet-08780635206a03cd4",
+      "subnet-06638c73d903dccd4",
+      "subnet-08c12b4cc32fb389b"
+    ],
+    "SecurityGroups": [
+      "sg-0802d303bcf93c80c"
+    ]
+  },
+  "ClusterName": "AWSKafkaCS441",
+  "EncryptionInfo": {
+    "EncryptionInTransit": {
+      "InCluster": true,
+      "ClientBroker": "TLS"
+    }
+  },
+  "EnhancedMonitoring": "PER_TOPIC_PER_BROKER",
+  "KafkaVersion": "2.2.1",
+  "NumberOfBrokerNodes": 3
+}
+```
+[clusterInfo](./clusterinfo.json)
+4. Execute the following command to create the MSK cluster
+```
+aws kafka create-cluster --cli-input-json fileb://clusterinfo.json
+```
+
+Once the Msk cluster is created we now need to create an EC2 instance within our VPC that can house the monitoring service and produce messages to Kafka.
+
+1. From the AWS console, navigate to the EC2 service and click on create a new instance.
+2. Select the required instance type, in the configuration details under the network list, select the same VPC in which the MSK cluster was deployed on.
+3. Enable Auto-assign Public IP and Launch the instance.
+4. Next we navigate to the security tab for the EC2 instance and copy the security group of the newly created EC instance.
+5. Next navigate to the VPC service and add a new inbound rule to the VPC to allow all traffic coming from the EC2 instance's security group. This will make sure the Monitoring service can publish messages directly to the MSK broker instance.
+
+We now install the required dependencies in the EC2 instance to be able to produce messages to Kafka
+
+1. SSH into the EC2 terminal and install Java.
+2. Run the following commands to download and install Apache Kafka
+```bash
+wget https://archive.apache.org/dist/kafka/2.2.1/kafka_2.12-2.2.1.tgz
+tar -xzf kafka_2.12-2.2.1.tgz
+```
+3. navigate to the ```kafka_2.12-2.2.1``` directory
+4. Create a new Topic called Logs by running the following command.
+```bash
+bin/kafka-topics.sh --create --zookeeper ZookeeperConnectString --replication-factor 3 --partitions 1 --topic AWSKafkaTutorialTopic
+```
+5. The ZookeeperConnectString can be found in the MSK AWS Console page -> View Client Information.
+6. Next we need to configure JVM truststore to talk to the MSK cluster. To do this run the following command in the EC2 instance.
+```bash
+cp /usr/lib/jvm/JDKFolder/jre/lib/security/cacerts /tmp/kafka.client.truststore.jks
+```
+
+Finally, we clone an instance of the Log monitor to monitor and produce logs to the MSK cluster.
+
+1. Clone this git repo into a directory in the EC2 instance.
+2. Copy the bootstrap servers TLS string the AWS MSK cluster form the AWS console and add it to the application.conf file [application.conf](./MonitoringService/src/main/resources/application.conf) under the Kafka section.
+3. Update the basepath attribute in the [application.conf](./MonitoringService/src/main/resources/application.conf) file to point to the folder where the logs are being generated into.
+4. Navigate into MonitoringService and run the following command
+```
+sbt clean compile run
+```
+5. We are now running the Monitoring Service and any new updates to the log file will produce messages that will be sent to the AWS MSK Kafka cluster.
+
+
+
 ## Programming technology
 All the simulations has been written in Scala using a Functional Programming approach.
 
