@@ -3,12 +3,11 @@
     "BrokerAZDistribution": "DEFAULT",
     "InstanceType": "kafka.t3.small",
     "ClientSubnets": [
-      "subnet-08780635206a03cd4",
-      "subnet-06638c73d903dccd4",
-      "subnet-08c12b4cc32fb389b"
+      "subnet-05b1911be29c84ae7",
+      "subnet-0bbc3eebf900b7424"
     ],
     "SecurityGroups": [
-      "sg-0802d303bcf93c80c"
+      "sg-046b843ba954d503c"
     ]
   },
   "ClusterName": "AWSKafkaCS441",
@@ -20,5 +19,5 @@
   },
   "EnhancedMonitoring": "PER_TOPIC_PER_BROKER",
   "KafkaVersion": "2.2.1",
-  "NumberOfBrokerNodes": 3
+  "NumberOfBrokerNodes": 2
 }
