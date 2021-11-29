@@ -49,13 +49,15 @@ For example, if we instanciate 3 logGenerators, our output directory tree will l
 
 To run the logGenerator on a EC2 instance follow the steps described below.
 
+It is mandatory that the instance you select has at least 2 cores.
+
 First thing first, log into your AWS console and start a Linux EC2 instance.
 
 In order to do that, select launch instance and select
 
 <code>Amazon Linux 2 AMI (HVM), SSD Volume Type - ami-03ab7423a204da002 (64-bit x86) / ami-0fb4cfafeead46a44 (64-bit Arm)</code>
 
-Select <code>64-bit (x86)</code> and then <code>t2.micro</code>.
+Select <code>64-bit (x86)</code> and then <code>t3.xlarge</code>.
 
 Make sure that SSH is enabled under security groups <code>SSH TCP 22 0.0.0.0/0 </code> and add your keypair when asked.
 
