@@ -265,7 +265,7 @@ tar -xzf kafka_2.12-2.2.1.tgz
 3. navigate to the ```kafka_2.12-2.2.1``` directory
 4. Create a new Topic called Logs by running the following command.
 ```bash
-bin/kafka-topics.sh --create --zookeeper ZookeeperConnectString --replication-factor 3 --partitions 1 --topic AWSKafkaTutorialTopic
+bin/kafka-topics.sh --create --zookeeper ZookeeperConnectString --replication-factor 3 --partitions 1 --topic Logs
 ```
 5. The ZookeeperConnectString can be found in the MSK AWS Console page -> View Client Information.
 6. Next we need to configure JVM truststore to talk to the MSK cluster. To do this run the following command in the EC2 instance.
