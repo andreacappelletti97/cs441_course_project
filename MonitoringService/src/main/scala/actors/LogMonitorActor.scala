@@ -93,7 +93,7 @@ class LogMonitorActor extends Actor {
             val fileName: String = event.context().asInstanceOf[Path].getFileName.toString
 
             fileName match {
-              case `logFileName` => onNewLogs(s"${directoryPath}/$fileName") // we only observe one file per actor
+              case `logFileName` => onNewLogs(s"$directoryPath/$fileName") // we only observe one file per actor
               case _ => logger.info("Not a file observed by this actor...")
             }
           case _ =>

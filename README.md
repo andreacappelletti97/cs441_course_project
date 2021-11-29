@@ -178,20 +178,31 @@ Based on a parameter that can be configured in the `application.conf` file, the 
 monitoringService {
     numOfLogGeneratorInstances = 2 # Should be equal to the number of deployed Log Generator instances
     basePath = "" # Contains the ABSOLUTE base path corresponding to the directory containing log files
-    timeWindow = {
-        start = "11:44:27"
-        end = "11:44:27.999"
-    },
-    redisKeyLastTimeStamp = "LAST_TIMESTAMP"
+    singleTimeWindow = false # if TRUE, consider the same time window for all the monitored log files
+    timeWindows = [
+        {
+            start = "11:12:00"
+            end = "11:25:00.999"
+        },
+        {
+            start = "11:44:28"
+            end = "11:44:28.999"
+        },
+    ],
+    redisKeyLastTimeStamp = "LAST-TIMESTAMP"
     lineSeparator = " "
+    redisHost = "localhost"
+    redisPort = 6379
 }
 ```
 
-As we can see, the base path corresponding to the directory that Akka actors are tracking for changes. In addition, it is necessary to configure the time window that we want to consider when we are searching in log files in response to changes.
+As we can see, the base path corresponding to the directory that Akka actors are tracking for changes. In addition, it is necessary to configure the time windows that we want to consider when we are searching in log files in response to changes.
 
-Every time there a log file is updated and the corresponding Akka actor reacts to it, the last timestamp that has already been passed to the Kafka component for the specific log file is stored in a local Redis instance. 
+By setting `singleTimeWindow` to `false`, it's possible to set different monitored time windows for different log files, in order to have more flexibility in the performed monitoring.
+
+Every time a log file is updated, the corresponding Akka actor reacts to it and the last timestamp that has already been passed to the Kafka component for the specific log file is stored in a local Redis instance. 
 This allows us to stop and restart the `MonitoringService` without notifying again the Kafka component about logs that were already been streamed before. 
-This means that the Redis Instance will contain N keys `LAST_TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored.
+This means that the Redis Instance will contain N keys `LAST-TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored.
 
 ## AWS MSK Cluster
 
