@@ -18,16 +18,21 @@ import { GetServerSidePropsResult } from 'next';
 import axios from 'axios';
 import { pipe } from 'fp-ts/lib/function';
 
-const sData = (log_id: string, loglevel: LogLevel, timestamp: string) => ({
+const sData = (log_id: string, log_type: LogLevel, timestamp: string) => ({
   log_id,
   timestamp,
-  loglevel,
-  log_message: 'some message',
+  log_type,
+  log_message: '6ESi#W~P@-(Hs)s&6c`6|$AnoX+hn($.4z&%&*h-+>Hl9',
 
 });
 
 const data: LogData[] = [
-
+  sData("11:30:47.670", 'WARN', '2021-02-17T23:20:59.000Z'),
+  sData("11:30:47.670", 'WARN', '2021-02-17T23:20:59.000Z'),
+  sData("11:30:47.670", 'WARN', '2021-02-17T23:20:59.000Z'),
+  sData("11:30:47.670", 'ERROR', '2021-02-17T23:20:59.000Z'),
+  sData("11:32:47.670", 'ERROR', '2021-02-17T23:20:59.000Z'),
+  sData("11:31:47.670", 'DEBUG', '2021-02-17T23:20:59.000Z'),
 ];
 
 interface LogPieChart {
