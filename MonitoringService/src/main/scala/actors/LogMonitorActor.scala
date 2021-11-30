@@ -137,8 +137,9 @@ class LogMonitorActor extends Actor {
 
     if (newLogs.nonEmpty) {
       redis.set(key = redisKey, value = newLogs.last.split(lineSeparator)(0))
+      logger.info(s"publishing ${newLogs.size} logs to kafka")
       // communication with Kafka component happens here
-      kafka.publishToKafka(newLogs)
+      kafka.publishToKafka(newLogs,logFile.getName)
     }
   }
 
