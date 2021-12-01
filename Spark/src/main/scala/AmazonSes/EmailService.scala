@@ -27,7 +27,7 @@ object EmailService extends App{
   val cfg = new Configuration
   val template = cfg.getTemplate(config.getString("emailService.emailTemplateDir"))
 
-  populateTemplate(List("Message1", "Message2", "Message3"))
+//  populateTemplate(List("Message1", "Message2", "Message3"))
 
   def populateTemplate(logData : List[String]): String ={
     val data = scala.collection.mutable.Map[String, Object]()
@@ -42,7 +42,6 @@ object EmailService extends App{
     sendEmail(config.getString("emailService.subject"), stringResult, stringResult)
     stringResult
   }
-
 
   def sendEmail(subject: String, htmlBody: String, textBody: String): Unit ={
     val client = AmazonSimpleEmailServiceClientBuilder.standard().withRegion(Regions.US_WEST_1).build()
@@ -62,9 +61,4 @@ object EmailService extends App{
     client.sendEmail(request)
     println("Email sent!")
   }
-
-
-
-
-
 }

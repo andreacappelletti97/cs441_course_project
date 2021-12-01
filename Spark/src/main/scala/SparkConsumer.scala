@@ -1,9 +1,6 @@
 import Model.{CassLogModel, KafkaLogModel}
 import Util.{CreateLogger, ObtainConfigReference}
 import com.datastax.oss.driver.api.core.{ConsistencyLevel, CqlSession}
-import com.datastax.oss.driver.api.mapper.annotations.Transient
-import com.datastax.spark.connector.cql.CassandraConnector
-import com.datastax.spark.connector.toRDDFunctions
 import io.circe.parser.parse
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -25,9 +22,8 @@ object SparkConsumer extends java.io.Serializable {
     case Some(value) => value
     case None => throw new RuntimeException("Can't obtain reference to the config")
   }
-  @Transient @transient private val session = CqlSession.builder.build()
+  @transient private val session = CqlSession.builder.build()
   private val cassLocation = config.getString("spark.cassandra.location")
-
 
   /**
    * Create A Spark Consumer That will
@@ -39,29 +35,18 @@ object SparkConsumer extends java.io.Serializable {
    *
    */
   def main(args: Array[String]): Unit = {
-    System.setProperty("hadoop.home.dir", "/")
-
-    val conf = new SparkConf().setMaster("local[*]").setAppName("Spark-Kafka")
-    conf.set("spark.cassandra.connection.host", config.getString("spark.cassandra.host"))
-    conf.set("spark.cassandra.connection.port", config.getString("spark.cassandra.port"))
+    val conf = new SparkConf().setAppName("Spark-Kafka-Consumer")
     logger.info("Create Spark Config")
 
     val sparkContext = new SparkContext(conf)
     val streamContext = new StreamingContext(sparkContext, Seconds(2))
     logger.info("Create Spark Stream")
 
-    if (cassLocation == "local") {
-      CassandraConnector(sparkContext).withSessionDo { session =>
-        session.execute("CREATE KEYSPACE IF NOT EXISTS log_gen_keyspace WITH REPLICATION = { 'class': 'SimpleStrategy', 'replication_factor': '1' };".stripMargin)
-        session.execute("CREATE TABLE IF NOT EXISTS log_gen_keyspace.log_data (log_id uuid PRIMARY KEY, timestamp text, log_type text, log_message text);".stripMargin)
-      }
-    }
-
     val kafkaParams = kafkaConfig()
     val stream = createSparkStream(streamContext, kafkaParams)
     logger.info("Use Spark-Stream to listen to Kafka")
 
-    val dstream: DStream[CassLogModel] = convertStreamToLogModel(stream)
+    val dstream = convertStreamToLogModel(stream)
     logger.info("Convert Kafka output to CassLogModel")
 
     // Listen To Stream Asynchronously
@@ -82,18 +67,10 @@ object SparkConsumer extends java.io.Serializable {
    */
   def saveToCassandra(rdd: RDD[CassLogModel]): Unit = {
     cassLocation match {
-      case "local" => saveToLocal(rdd)
+      case "local" => throw new RuntimeException("Not Supported")
       case "aws" => saveToCassAws(rdd)
       case _ => throw new RuntimeException("Cassandra location not supported")
     }
-  }
-
-  /**
-   * Save To Local cassandra using spark-cass-connector
-   * @param rdd
-   */
-  def saveToLocal(rdd: RDD[CassLogModel]): Unit = {
-    rdd.saveToCassandra(config.getString("spark.cassandra.keyspace"), config.getString("spark.cassandra.table"))
   }
 
   /**
@@ -103,6 +80,8 @@ object SparkConsumer extends java.io.Serializable {
   def saveToCassAws(rdd: RDD[CassLogModel]): Unit = {
     rdd.foreach(cassLogModel => {
       if (cassLogModel != null) {
+        println(s"saving: ${cassLogModel}")
+        logger.info(s"saving: ${cassLogModel}")
         save(cassLogModel)
       }
     })
@@ -113,12 +92,12 @@ object SparkConsumer extends java.io.Serializable {
    * @param cassLogModel
    */
   def save(cassLogModel: CassLogModel): Unit = {
-    @Transient @transient val prepareStatement = session.prepare(
-      """INSERT INTO log_gen_keyspace.log_data
-        |   (log_id, log_message, log_type, timestamp) VALUES
-        |   (?, ?, ?, ?)""".stripMargin)
-    @Transient @transient val parameterizedStatement = prepareStatement.bind(cassLogModel.log_id, cassLogModel.log_message, cassLogModel.log_type, cassLogModel.timestamp)
-    @Transient @transient val statement = parameterizedStatement.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM)
+    @transient val prepareStatement = session.prepare(
+      s"""INSERT INTO ${config.getString("spark.cassandra.keyspace")}.${config.getString("spark.cassandra.table")}
+        |   (log_id, file_name, log_message, log_type, timestamp) VALUES
+        |   (?, ?, ?, ?, ?)""".stripMargin)
+    @transient val parameterizedStatement = prepareStatement.bind(cassLogModel.log_id, cassLogModel.file_name, cassLogModel.log_message, cassLogModel.log_type, cassLogModel.timestamp)
+    @transient val statement = parameterizedStatement.setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM)
     session.execute(statement)
   }
 
@@ -135,7 +114,7 @@ object SparkConsumer extends java.io.Serializable {
         val logEither = parse(logJson)
         logEither match {
           case Right(logModel) => logModel.as[KafkaLogModel] match {
-            case Right(logModel) => CassLogModel(UUID.randomUUID(), logModel.message, logModel.level, logModel.timestamp)
+            case Right(logModel) => CassLogModel(UUID.randomUUID(), logModel.filename,logModel.message, logModel.level, logModel.timestamp)
             case Left(_) => null
           }
           case Left(_) => null
@@ -157,6 +136,7 @@ object SparkConsumer extends java.io.Serializable {
       PreferConsistent,
       Subscribe[String, String](topics, kafkaParams)
     )
+    logger.info(s"Topic: ${topics(0)}")
     stream
   }
 
@@ -166,12 +146,15 @@ object SparkConsumer extends java.io.Serializable {
    */
   def kafkaConfig(): Map[String, Object] = {
     Map[String, Object](
-      "bootstrap.servers" -> s"${config.getString("spark.host")}:${config.getLong("spark.port")}",
+      "bootstrap.servers" -> s"${config.getString("spark.boostrap-server")}",
       "key.deserializer" -> classOf[StringDeserializer],
       "value.deserializer" -> classOf[StringDeserializer],
       "group.id" -> config.getString("spark.groupId"),
       "auto.offset.reset" -> config.getString("spark.offset"),
-      "enable.auto.commit" -> (false: java.lang.Boolean)
+      "enable.auto.commit" -> (false: java.lang.Boolean),
+      "security.protocol" -> "SSL",
+      "ssl.truststore.location" -> config.getString("spark.truststore-path"),
+      "ssl.truststore.password" -> config.getString("spark.truststore-password")
     )
   }
 
