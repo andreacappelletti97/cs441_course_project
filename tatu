@@ -1,0 +1,178 @@
+[1mdiff --git a/logDashboard/package-lock.json b/logDashboard/package-lock.json[m
+[1mindex cbe061a..9aaa415 100644[m
+[1m--- a/logDashboard/package-lock.json[m
+[1m+++ b/logDashboard/package-lock.json[m
+[36m@@ -1,6309 +1,8 @@[m
+ {[m
+   "name": "dashboard-logs",[m
+   "version": "0.1.0",[m
+[31m-  "lockfileVersion": 2,[m
+[32m+[m[32m  "lockfileVersion": 1,[m
+   "requires": true,[m
+[31m-  "packages": {[m
+[31m-    "": {[m
+[31m-      "name": "dashboard-logs",[m
+[31m-      "version": "0.1.0",[m
+[31m-      "dependencies": {[m
+[31m-        "@nivo/core": "^0.69.0",[m
+[31m-        "@nivo/line": "^0.69.1",[m
+[31m-        "@nivo/pie": "^0.69.0",[m
+[31m-        "aws-sigv4-auth-cassandra-plugin": "^1.0.4",[m
+[31m-        "axios": "^0.21.1",[m
+[31m-        "fp-ts": "^2.10.5",[m
+[31m-        "mysql2": "^2.2.5",[m
+[31m-        "next": "10.2.0",[m
+[31m-        "react": "17.0.2",[m
+[31m-        "react-dom": "17.0.2"[m
+[31m-      },[m
+[31m-      "devDependencies": {[m
+[31m-        "@types/node": "^15.3.0",[m
+[31m-        "@types/react": "^17.0.6",[m
+[31m-        "@typescript-eslint/eslint-plugin": "^4.24.0",[m
+[31m-        "@typescript-eslint/parser": "^4.24.0",[m
+[31m-        "autoprefixer": "^10.2.5",[m
+[31m-        "eslint": "^7.26.0",[m
+[31m-        "eslint-config-prettier": "^8.3.0",[m
+[31m-        "eslint-import-resolver-typescript": "^2.4.0",[m
+[31m-        "eslint-plugin-prettier": "^3.4.0",[m
+[31m-        "eslint-plugin-react": "^7.23.2",[m
+[31m-        "postcss": "^8.2.15",[m
+[31m-        "prettier": "^2.3.0",[m
+[31m-        "tailwindcss": "^2.1.2",[m
+[31m-        "typescript": "^4.2.4"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@babel/code-frame": {[m
+[31m-      "version": "7.12.11",[m
+[31m-      "resolved": "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.12.11.tgz",[m
+[31m-      "integrity": "sha512-Zt1yodBx1UcyiePMSkWnU4hPqhwq7hGi2nFL1LeA3EUl+q2LQx16MISgJ0+z7dnmgvP9QtIleuETGOiOH1RcIw==",[m
+[31m-      "dependencies": {[m
+[31m-        "@babel/highlight": "^7.10.4"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@babel/helper-validator-identifier": {[m
+[31m-      "version": "7.14.0",[m
+[31m-      "resolved": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.14.0.tgz",[m
+[31m-      "integrity": "sha512-V3ts7zMSu5lfiwWDVWzRDGIN+lnCEUdaXgtVHJgLb1rGaA6jMrtB9EmE7L18foXJIE8Un/A/h6NJfGQp/e1J4A=="[m
+[31m-    },[m
+[31m-    "node_modules/@babel/highlight": {[m
+[31m-      "version": "7.14.0",[m
+[31m-      "resolved": "https://registry.npmjs.org/@babel/highlight/-/highlight-7.14.0.tgz",[m
+[31m-      "integrity": "sha512-YSCOwxvTYEIMSGaBQb5kDDsCopDdiUGsqpatp3fOlI4+2HQSkTmEVWnVuySdAC5EWCqSWWTv0ib63RjR7dTBdg==",[m
+[31m-      "dependencies": {[m
+[31m-        "@babel/helper-validator-identifier": "^7.14.0",[m
+[31m-        "chalk": "^2.0.0",[m
+[31m-        "js-tokens": "^4.0.0"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@babel/parser": {[m
+[31m-      "version": "7.16.4",[m
+[31m-      "resolved": "https://registry.npmjs.org/@babel/parser/-/parser-7.16.4.tgz",[m
+[31m-      "integrity": "sha512-6V0qdPUaiVHH3RtZeLIsc+6pDhbYzHR8ogA8w+f+Wc77DuXto19g2QUwveINoS34Uw+W8/hQDGJCx+i4n7xcng==",[m
+[31m-      "bin": {[m
+[31m-        "parser": "bin/babel-parser.js"[m
+[31m-      },[m
+[31m-      "engines": {[m
+[31m-        "node": ">=6.0.0"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@babel/runtime": {[m
+[31m-      "version": "7.12.5",[m
+[31m-      "resolved": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.12.5.tgz",[m
+[31m-      "integrity": "sha512-plcc+hbExy3McchJCEQG3knOsuh3HH+Prx1P6cLIkET/0dLuQDEnrT+s27Axgc9bqfsmNUNHfscgMUdBpC9xfg==",[m
+[31m-      "dependencies": {[m
+[31m-        "regenerator-runtime": "^0.13.4"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@babel/types": {[m
+[31m-      "version": "7.8.3",[m
+[31m-      "resolved": "https://registry.npmjs.org/@babel/types/-/types-7.8.3.tgz",[m
+[31m-      "integrity": "sha512-jBD+G8+LWpMBBWvVcdr4QysjUE4mU/syrhN17o1u3gx0/WzJB1kwiVZAXRtWbsIPOwW8pF/YJV5+nmetPzepXg==",[m
+[31m-      "dependencies": {[m
+[31m-        "esutils": "^2.0.2",[m
+[31m-        "lodash": "^4.17.13",[m
+[31m-        "to-fast-properties": "^2.0.0"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@eslint/eslintrc": {[m
+[31m-      "version": "0.4.1",[m
+[31m-      "resolved": "https://registry.npmjs.org/@eslint/eslintrc/-/eslintrc-0.4.1.tgz",[m
+[31m-      "integrity": "sha512-5v7TDE9plVhvxQeWLXDTvFvJBdH6pEsdnl2g/dAptmuFEPedQ4Erq5rsDsX+mvAM610IhNaO2W5V1dOOnDKxkQ==",[m
+[31m-      "dev": true,[m
+[31m-      "dependencies": {[m
+[31m-        "ajv": "^6.12.4",[m
+[31m-        "debug": "^4.1.1",[m
+[31m-        "espree": "^7.3.0",[m
+[31m-        "globals": "^12.1.0",[m
+[31m-        "ignore": "^4.0.6",[m
+[31m-        "import-fresh": "^3.2.1",[m
+[31m-        "js-yaml": "^3.13.1",[m
+[31m-        "minimatch": "^3.0.4",[m
+[31m-        "strip-json-comments": "^3.1.1"[m
+[31m-      },[m
+[31m-      "engines": {[m
+[31m-        "node": "^10.12.0 || >=12.0.0"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@eslint/eslintrc/node_modules/debug": {[m
+[31m-      "version": "4.3.1",[m
+[31m-      "resolved": "https://registry.npmjs.org/debug/-/debug-4.3.1.tgz",[m
+[31m-      "integrity": "sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==",[m
+[31m-      "dev": true,[m
+[31m-      "dependencies": {[m
+[31m-        "ms": "2.1.2"[m
+[31m-      },[m
+[31m-      "engines": {[m
+[31m-        "node": ">=6.0"[m
+[31m-      },[m
+[31m-      "peerDependenciesMeta": {[m
+[31m-        "supports-color": {[m
+[31m-          "optional": true[m
+[31m-        }[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@eslint/eslintrc/node_modules/globals": {[m
+[31m-      "version": "12.4.0",[m
+[31m-      "resolved": "https://registry.npmjs.org/globals/-/globals-12.4.0.tgz",[m
+[31m-      "integrity": "sha512-BWICuzzDvDoH54NHKCseDanAhE3CeDorgDL5MT6LMXXj2WCnd9UC2szdk4AWLfjdgNBCXLUanXYcpBBKOSWGwg==",[m
+[31m-      "dev": true,[m
+[31m-      "dependencies": {[m
+[31m-        "type-fest": "^0.8.1"[m
+[31m-      },[m
+[31m-      "engines": {[m
+[31m-        "node": ">=8"[m
+[31m-      },[m
+[31m-      "funding": {[m
+[31m-        "url": "https://github.com/sponsors/sindresorhus"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@eslint/eslintrc/node_modules/ignore": {[m
+[31m-      "version": "4.0.6",[m
+[31m-      "resolved": "https://registry.npmjs.org/ignore/-/ignore-4.0.6.tgz",[m
+[31m-      "integrity": "sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==",[m
+[31m-      "dev": true,[m
+[31m-      "engines": {[m
+[31m-        "node": ">= 4"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@eslint/eslintrc/node_modules/ms": {[m
+[31m-      "version": "2.1.2",[m
+[31m-      "resolved": "https://registry.npmjs.org/ms/-/ms-2.1.2.tgz",[m
+[31m-      "integrity": "sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==",[m
+[31m-      "dev": true[m
+[31m-    },[m
+[31m-    "node_modules/@eslint/eslintrc/node_modules/type-fest": {[m
+[31m-      "version": "0.8.1",[m
+[31m-      "resolved": "https://registry.npmjs.org/type-fest/-/type-fest-0.8.1.tgz",[m
+[31m-      "integrity": "sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==",[m
+[31m-      "dev": true,[m
+[31m-      "engines": {[m
+[31m-        "node": ">=8"[m
+[31m-      }[m
+[31m-    },[m
+[31m-    "node_modules/@fullhuman/postcss-purgecss": {[m
+[31m-      "version": "3.1.3",[m
+[31m-      "resolved": "https://registry.npmjs.org/@fullhuman/postcss-purgecss/-/postcss-purgecss-3.1.3.tgz",[m
+[31m-      "integrity": "sha512-kwOXw8fZ0Lt1QmeOOrd+o4Ibvp4UTEBFQbzvWldjlKv5n+G9sXfIPn1hh63IQIL8K8vbvv1oYMJiIUbuy9bGaA==",[m
+[31m-      "dev": true,[m
+[31m-      "dependencies": {[

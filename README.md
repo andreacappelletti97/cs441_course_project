@@ -298,6 +298,93 @@ sbt clean compile run
 5. We are now running the Monitoring Service and any new updates to the log file will produce messages that will be sent to the AWS MSK Kafka cluster.
 
 
+## Spark-Streaming
+
+In this project, we will be using EMR to run our spark-stream application and Amazon keyspace to save all the data 
+about logs
+
+### Steps on how to create and set-up EMR:
+
+#### Create And Config EMR
+
+1. Navigate to EMR and click create cluster and go to advanced Options
+2. EMR released used for this project is: emr-5.33.1 (remember to check spark 2.4.7)
+3. Choose the same network VPC as Kafka above
+4. Chose a name and spin off an EMR cluster
+
+#### setup inbound and authorization between EMR and Kafka
+
+1. Go to kafka cluster click on Networking > Security group
+2. Copy the security group for EMR master (make sure it's not slave)
+3. Add inbound with type: **All traffic** and paste in the EMR security group as source and save
+4. Add **AmazonMSKFullAccess** to the default role for EMR when creating it **EMR_EC2_DefaultRole**,
+or add to the role that associate with the EMR master node
+5. Since MSK talk through SSL, you need get the generated kafka.client.truststore.jks when
+creating kafka, with the default password as "changeit" and put it in application.conf
+
+### Steps on how to create and set-up Amazon Keyspace:
+
+#### Create Amazon Keyspace 
+
+1. Navigate To Amazon Keyspace
+2. From the left-hand side Click on Keyspace and create a keyspace (log_gen_keyspace is the project's keyspace)
+3. From the left-hand side Click on table and create table with the below schema (log_data is the project's table)
+4. Set up keyspace and table in Spark project by going to src/main/resource/application.conf
+
+```
+Amazon Keyspace Table Schema
+
+file_name	text
+log_id		uuid
+log_message	text
+log_type	text
+timestamp	text
+```
+
+#### Set up connection to amazon keyspace
+
+![img.png](SparkConfig.png)
+
+1. Create an IAM user
+2. Add **AmazonKeyspacesFullAccess** to its permission
+3. click on **Security credentials** and scroll to the bottom and generate credential for Amazon Keyspace
+4. Insert new generated credential into **advanced.auth-provider.username** and **advanced.auth-provider.password**
+5. use **https://docs.aws.amazon.com/keyspaces/latest/devguide/programmatic.endpoints.html** to figure out the region
+for Amazon keyspace endpoint and replace it into basic.* and advanced.auth-provider.aws-region
+6. for ssl-engine-factory generate as below and put the truststore path and password correctly
+7. keep **class** configuration the same, do not change
+
+```
+curl https://certs.secureserver.net/repository/sf-class2-root.crt -O
+openssl x509 -outform der -in sf-class2-root.crt -out temp_file.der
+keytool -import -alias cassandra -keystore cassandra_truststore.jks -file temp_file.der
+
+For more informaion about amazon keyspace TLS:
+https://docs.aws.amazon.com/keyspaces/latest/devguide/using_java_driver.html#using_java_driver.BeforeYouBegin
+```
+
+> NOTE: you can simply skip step 6 and use the generated cassandra_truststore.jks from the project in **src/main/resource**
+
+### Deploy and Run
+
+1. From Spark Project, run: sbt assembly
+2. after jar file created, upload it to the master node in EMR using ssh
+3. make sure to upload both **cassandra_truststore.jks** and **kafka.client.truststore.jks**
+and put it in the same directory as the jar file
+4. Run the following command to remove signed jar problems
+
+```bash
+zip -d <jar file name>.jar META-INF/*.RSA META-INF/*.DSA META-INF/*.SF
+```
+
+5. then run spark-submit via the following:
+
+```bash
+spark-submit --master local[1] \
+class SparkConsumer \ 
+SparkConsumer.jar
+ ```
+
 
 ## Programming technology
 All the simulations has been written in Scala using a Functional Programming approach.

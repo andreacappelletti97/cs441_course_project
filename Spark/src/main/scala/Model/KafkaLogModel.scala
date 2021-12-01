@@ -4,7 +4,7 @@ import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
 
-case class KafkaLogModel(level: String, message: String, timestamp: String);
+case class KafkaLogModel(filename: String, level: String, message: String, timestamp: String);
 
 object KafkaLogModel {
   implicit val logDecoder: Decoder[KafkaLogModel] = deriveDecoder[KafkaLogModel]
