@@ -14,6 +14,14 @@ object Operation extends Enumeration {
 
 object TimestampIntervalBinarySearch {
 
+  /**
+   * Public method called by the monitoring service to search for logs in a specific time window
+   * @param start start of the time interval
+   * @param end end of the time interval
+   * @param logs array of logs retrieved from file
+   * @param config configuration object
+   * @return the Vector of found logs
+   */
   def binarySearch(start: LocalTime, end: LocalTime, logs: Vector[String], config: Config): Vector[String] = {
 
     val length: Int = logs.length
@@ -35,6 +43,14 @@ object TimestampIntervalBinarySearch {
     })
   }
 
+  /**
+   * Inner recursive function that performs the actual Binary Search on the logs Vector
+   * @param start start of the time interval
+   * @param end end of the time interval
+   * @param logs array of logs retrieved from file
+   * @param lineSplitter log line separator char
+   * @return the Vector of found logs
+   */
   @tailrec
   private def binarySearchInner(start: LocalTime, end: LocalTime, logs: Vector[String], lineSplitter: String): Vector[String] = {
     val length: Int = logs.length
@@ -66,6 +82,18 @@ object TimestampIntervalBinarySearch {
     }
   }
 
+  /**
+   * Inner recursive function that is called once a log that is in the searched time interval is found. This function is needed to get all the other logs that are
+   * in the time interval, both those that are before the first log found and those that are after it in the log file.
+   * @param logs array of logs retrieved from file
+   * @param foundLogs a Vector containing only the lines of the log that are in the specified time interval, updated at every recursive call
+   * @param index current index in the log Vector
+   * @param start start of the time interval
+   * @param end end of the time interval
+   * @param operation the Operation we are currently performing
+   * @param lineSplitter log line separator char
+   * @return the found logs that are in the right time interval before or after the starting index
+   */
   private def findAllLogsBeforeOrAfter(logs: Vector[String], foundLogs: Vector[String], index: Int, start: LocalTime, end: LocalTime, operation: Operation, lineSplitter: String): Vector[String] = {
     if (index < 0 || index >= logs.length) {
       return foundLogs
@@ -83,6 +111,13 @@ object TimestampIntervalBinarySearch {
     foundLogs
   }
 
+  /**
+   * Utility function used to check if a time is contained in the time window delimited by START and END times
+   * @param time the time that we want to check
+   * @param start start of the time interval
+   * @param end end of the time interval
+   * @return true if TIME is in the time interval, false otherwise
+   */
   private def isInInterval(time: LocalTime, start: LocalTime, end: LocalTime): Boolean = {
     val isStart: Boolean = time.equals(start)
     val isEnd: Boolean = time.equals(end)

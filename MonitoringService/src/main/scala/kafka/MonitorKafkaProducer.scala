@@ -9,7 +9,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.{Logger, LoggerFactory}
-import spray.json.DefaultJsonProtocol.jsonFormat3
+import spray.json.DefaultJsonProtocol.jsonFormat4
 import spray.json.{DefaultJsonProtocol, enrichAny}
 import DefaultJsonProtocol._
 import utils.LogUtils._
@@ -18,8 +18,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class MonitorKafkaProducer(actorSystem: ActorSystem) {
-  case class LogMessage(timestamp: String, level: String, message: String)
-  implicit val logMessage = jsonFormat3(LogMessage)
+  case class LogMessage(timestamp: String, level: String, message: String, filename: String)
+  implicit val logMessage = jsonFormat4(LogMessage)
   implicit val system = actorSystem
 
   private val config: Config = ConfigFactory.load()
@@ -33,10 +33,10 @@ class MonitorKafkaProducer(actorSystem: ActorSystem) {
 
   val producer = SendProducer(producerSettings)
 
-  def publishToKafka(logs: Vector[String]): Unit ={
+  def publishToKafka(logs: Vector[String],filename: String): Unit ={
     val source = Source.fromIterator(() => logs.iterator)
     val mapToKafkaMessage: Flow[String,LogMessage,NotUsed] =  Flow[String].map[LogMessage](log => {
-      LogMessage(getLogTimeStamp(log).getOrElse(""),getLogLevel(log),getLogMessage(log))
+      LogMessage(getLogTimeStamp(log).getOrElse(""),getLogLevel(log),getLogMessage(log),filename)
     })
 
     val mapLogToJson: Flow[LogMessage, String, NotUsed] = Flow[LogMessage].map[String](log => log.toJson.prettyPrint)

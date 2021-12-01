@@ -49,13 +49,15 @@ For example, if we instanciate 3 logGenerators, our output directory tree will l
 
 To run the logGenerator on a EC2 instance follow the steps described below.
 
+It is mandatory that the instance you select has at least 2 cores.
+
 First thing first, log into your AWS console and start a Linux EC2 instance.
 
 In order to do that, select launch instance and select
 
 <code>Amazon Linux 2 AMI (HVM), SSD Volume Type - ami-03ab7423a204da002 (64-bit x86) / ami-0fb4cfafeead46a44 (64-bit Arm)</code>
 
-Select <code>64-bit (x86)</code> and then <code>t2.micro</code>.
+Select <code>64-bit (x86)</code> and then <code>t3.xlarge</code>.
 
 Make sure that SSH is enabled under security groups <code>SSH TCP 22 0.0.0.0/0 </code> and add your keypair when asked.
 
@@ -178,20 +180,31 @@ Based on a parameter that can be configured in the `application.conf` file, the 
 monitoringService {
     numOfLogGeneratorInstances = 2 # Should be equal to the number of deployed Log Generator instances
     basePath = "" # Contains the ABSOLUTE base path corresponding to the directory containing log files
-    timeWindow = {
-        start = "11:44:27"
-        end = "11:44:27.999"
-    },
-    redisKeyLastTimeStamp = "LAST_TIMESTAMP"
+    singleTimeWindow = false # if TRUE, consider the same time window for all the monitored log files
+    timeWindows = [
+        {
+            start = "11:12:00"
+            end = "11:25:00.999"
+        },
+        {
+            start = "11:44:28"
+            end = "11:44:28.999"
+        },
+    ],
+    redisKeyLastTimeStamp = "LAST-TIMESTAMP"
     lineSeparator = " "
+    redisHost = "localhost"
+    redisPort = 6379
 }
 ```
 
-As we can see, the base path corresponding to the directory that Akka actors are tracking for changes. In addition, it is necessary to configure the time window that we want to consider when we are searching in log files in response to changes.
+As we can see, the base path corresponding to the directory that Akka actors are tracking for changes. In addition, it is necessary to configure the time windows that we want to consider when we are searching in log files in response to changes.
 
-Every time there a log file is updated and the corresponding Akka actor reacts to it, the last timestamp that has already been passed to the Kafka component for the specific log file is stored in a local Redis instance. 
+By setting `singleTimeWindow` to `false`, it's possible to set different monitored time windows for different log files, in order to have more flexibility in the performed monitoring.
+
+Every time a log file is updated, the corresponding Akka actor reacts to it and the last timestamp that has already been passed to the Kafka component for the specific log file is stored in a local Redis instance. 
 This allows us to stop and restart the `MonitoringService` without notifying again the Kafka component about logs that were already been streamed before. 
-This means that the Redis Instance will contain N keys `LAST_TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored.
+This means that the Redis Instance will contain N keys `LAST-TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored.
 
 ## AWS MSK Cluster
 
@@ -265,7 +278,7 @@ tar -xzf kafka_2.12-2.2.1.tgz
 3. navigate to the ```kafka_2.12-2.2.1``` directory
 4. Create a new Topic called Logs by running the following command.
 ```bash
-bin/kafka-topics.sh --create --zookeeper ZookeeperConnectString --replication-factor 3 --partitions 1 --topic AWSKafkaTutorialTopic
+bin/kafka-topics.sh --create --zookeeper ZookeeperConnectString --replication-factor 3 --partitions 1 --topic Logs
 ```
 5. The ZookeeperConnectString can be found in the MSK AWS Console page -> View Client Information.
 6. Next we need to configure JVM truststore to talk to the MSK cluster. To do this run the following command in the EC2 instance.

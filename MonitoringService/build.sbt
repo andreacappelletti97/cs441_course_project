@@ -46,7 +46,7 @@ lazy val root = (project in file(".")).
       "net.debasishg" %% "redisclient" % scalaRedisVersion,
       "io.spray" %%  "spray-json" % "1.3.6"
     ),
-    assemblyJarName := "LogFinderServer.jar",
+    assemblyJarName := "LogMonitorService.jar",
   )
 
 assemblyMergeStrategy in assembly := {
