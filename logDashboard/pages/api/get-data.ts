@@ -14,7 +14,7 @@ const auth = new sigV4.SigV4AuthProvider({
   console.log("success")
   const sslOptions1 = {
     ca: [
-        fs.readFileSync('sf-class2-root.crt', 'utf-8')],
+        fs.readFileSync('/Users/andreacappelletti/Downloads/logDashboard/pages/api/sf-class2-root.crt', 'utf-8')],
     host: 'cassandra.us-east-2.amazonaws.com',
     rejectUnauthorized: true
   };
@@ -32,5 +32,9 @@ export default async (
 ): Promise<void> => {
 
 const query = 'SELECT * FROM log_gen_keyspace.log_data';
+console.log("GENERATING RESULTS ....")
+const result = (await client.execute(query)).rows;
+console.log("results " + result[0])
+
   res.status(200).json(client.execute(query));
 };
