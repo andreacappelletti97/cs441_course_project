@@ -206,6 +206,28 @@ Every time a log file is updated, the corresponding Akka actor reacts to it and 
 This allows us to stop and restart the `MonitoringService` without notifying again the Kafka component about logs that were already been streamed before. 
 This means that the Redis Instance will contain N keys `LAST-TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored.
 
+### Installation Instructions
+- In addition to the JDK, the `MonitoringService` component requires the installation of Redis, that can be installed following the instruction on the official website: https://redis.io/topics/quickstart
+- Generate the JAR file for the `MonitoringService` with the following command:
+```
+sbt assembly
+```
+
+The default path of the generated JAR file is `target/LogMonitorService.jar` path.
+
+### Instructions for running the MonitoringService
+- The first step is to run the `LogGenerator` component as explained in the previous section
+- Then, we have to start Redis by running the `redis-server` command
+- Finally, we can start the `MonitoringService` application with the following command:
+  
+```
+java -jar LogMonitorServer.jar
+```
+
+### YouTube Video
+
+A video explaining the deployment of this component to AWS EC2 can be found at the following URL: https://youtu.be/AEMJd9joD1A
+
 ## AWS MSK Cluster
 
 In this project we will be using the AWS msk service to create a kafka cluster to which messages will be sent from the Log Monitor
