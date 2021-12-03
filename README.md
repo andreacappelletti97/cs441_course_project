@@ -31,6 +31,13 @@ This repository is organized into 6 different subprojects.
 
 The following sections describe the functionalities implemented in all of them.
 
+## Youtube Playlist
+
+The documentation of our project is available on YouTube.
+We created a playlist in order to make the videos straightforward and divided by topic.
+
+https://www.youtube.com/playlist?list=PLfVw8NwC6k6n98mxJDiFBDzHKwUklbhW0
+
 ## LogFileGenerator
 
 The first project, logGenerator, provides an extension of the log generator coded by Professor Mark.
@@ -323,6 +330,10 @@ sbt clean compile run
 ```
 5. We are now running the Monitoring Service and any new updates to the log file will produce messages that will be sent to the AWS MSK Kafka cluster.
 
+### YouTube Video
+
+A video explanation is available at this url: https://www.youtube.com/watch?v=SkdAaIDedUk&list=PLfVw8NwC6k6n98mxJDiFBDzHKwUklbhW0&index=3&t=21s
+
 
 ## Spark-Streaming
 
@@ -410,6 +421,11 @@ spark-submit --master local[1] \
 class SparkConsumer \ 
 SparkConsumer.jar
  ```
+
+
+ ### YouTube Video
+
+A video explanation is available at this url: https://www.youtube.com/watch?v=LJEnlwDNrN8&list=PLfVw8NwC6k6n98mxJDiFBDzHKwUklbhW0&index=4
 
 
  ## cloudFunctions
