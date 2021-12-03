@@ -419,6 +419,8 @@ SparkConsumer.jar
  The goal of this project is to retrieve the log data stored from Spark into Cassandra through
  the Google Cloud Api Function. Once retrieved, it provides a dashboard useful to analyse data statistics and to visualize the status of the system at any time.
 
+ The dashboard has been realised using Typescript and NextJs.
+
  For the purpose of the project we limit the data retrieval at the first 20 logs.
 
  In order to run the dashboard first you have to install all the project dependencies with NPM. 
@@ -454,6 +456,23 @@ In this case
 ```javascript
 http://localhost:3000
  ```
+
+The features provided by our dashboard are the following.
+
+### Overall overview of the log data (frequency and time window)
+![img.png](./docs/dashboard1.png)
+
+### Filter the log messages based on the type (ERROR, DEBUG, INFO ...)
+![img.png](./docs/dashboard2.png)
+
+### Visualize the log frequency of a particular type
+![img.png](./docs/dashboard3.png)
+
+### Take a deep look into the time window in order to understand the status of the system
+![img.png](./docs/dashboard4.png)
+
+### Take a look at the log messages in order to understand more about them
+![img.png](./docs/dashboard5.png)
 
 
 
