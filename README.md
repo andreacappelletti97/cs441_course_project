@@ -526,3 +526,11 @@ While writing the simulations the following best practices has been adopted
 ## References
 In order to produce the result obtained the following documents and paper
 have been consulted.
+
+- https://leanpub.com/edocc
+- https://www.vmware.com
+- https://aws.amazon.com/emr/
+- https://rockthejvm.com/
+- https://databricks.gitbooks.io/databricks-spark-reference-applications/content/logs_analyzer/index.html
+- https://www.confluent.io/resources/kafka-the-definitive-guide-v1/
+- https://www.docker.com/
