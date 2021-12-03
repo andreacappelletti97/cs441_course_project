@@ -414,6 +414,20 @@ SparkConsumer.jar
 
  ## cloudFunctions
 
+ This project contains the backend for the following project (logDashboard).
+ 
+ The backend is developed in Node Js and it's goal is to retrieve the log data from Cassandra and provide an API to the logDashboard. 
+
+ We have deployed the entire project on Google Cloud because it was straightforward to integrate dependecies into the function with NPM (like Cassandra driver, aws auth ...).
+
+ The API is public and it can be accessed at this URL.
+
+https://us-central1-nuklex-app.cloudfunctions.net/logDataFunction
+
+ Just for simplicity we decided to provide the first 20 log messages. 
+ 
+ In the future a pageble query can be implemented to retrieve all the log messages or a get request with the timestamps as time interval.
+
  ## logDashboard
 
  The goal of this project is to retrieve the log data stored from Spark into Cassandra through
