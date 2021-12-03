@@ -38,13 +38,19 @@ We created a playlist in order to make the videos straightforward and divided by
 
 https://www.youtube.com/playlist?list=PLfVw8NwC6k6n98mxJDiFBDzHKwUklbhW0
 
-## LogFileGenerator
 
-The first project, logGenerator, provides an extension of the log generator coded by Professor Mark.
+## Project architecture
+
 
 We have design the overall architecture following this schema
 
 ![alt text](docs/architecture.png)
+
+![alt text](docs/architecture2.png)
+
+## LogFileGenerator
+
+The first project, logGenerator, provides an extension of the log generator coded by Professor Mark.
 
 All the instances of the logGenerator will pack their own data, that are generated over multiple days, into a single log file. 
 
@@ -467,6 +473,8 @@ https://us-central1-nuklex-app.cloudfunctions.net/logDataFunction
  For the purpose of the project we limit the data retrieval at the first 20 logs.
 
  In order to run the dashboard first you have to install all the project dependencies with NPM. 
+
+ First install NPM from the official website https://www.npmjs.com/
  
  Run from the root directory of the project
 
