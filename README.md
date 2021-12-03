@@ -20,10 +20,14 @@ UIN: 654073093
 tnguy276@uic.edu  
 
 ## Project
-This repository is organized into X different subprojects.
+This repository is organized into 6 different subprojects.
 
-- LogFileGenerator
+- logGenerator
 - MonitoringService
+- Akka-Kafka
+- Spark
+- cloudFunctions
+- logDashboard
 
 The following sections describe the functionalities implemented in all of them.
 
@@ -365,7 +369,7 @@ timestamp	text
 
 #### Set up connection to amazon keyspace
 
-![img.png](SparkConfig.png)
+![img.png](./docs/SparkConfig.png)
 
 1. Create an IAM user
 2. Add **AmazonKeyspacesFullAccess** to its permission
@@ -406,6 +410,52 @@ spark-submit --master local[1] \
 class SparkConsumer \ 
 SparkConsumer.jar
  ```
+
+
+ ## cloudFunctions
+
+ ## logDashboard
+
+ The goal of this project is to retrieve the log data stored from Spark into Cassandra through
+ the Google Cloud Api Function. Once retrieved, it provides a dashboard useful to analyse data statistics and to visualize the status of the system at any time.
+
+ For the purpose of the project we limit the data retrieval at the first 20 logs.
+
+ In order to run the dashboard first you have to install all the project dependencies with NPM. 
+ 
+ Run from the root directory of the project
+
+```javascript
+npm install
+ ```
+
+And then deploy it with
+
+```javascript
+npm run dev
+ ```
+
+The output should look like
+
+```bash
+> dashboard-logs@0.1.0 dev
+> next dev
+
+ready - started server on 0.0.0.0:3000, url: http://localhost:3000
+info  - Using webpack 4. Reason: future.webpack5 option disabled https://nextjs.org/docs/messages/webpack5
+
+warn - You have enabled the JIT engine which is currently in preview.
+warn - Preview features are not covered by semver, may introduce breaking changes, and can change at any time.
+event - compiled successfully
+ ```
+Now you can access the dashboard at the address specified by the output of the previous command.
+In this case
+
+```javascript
+http://localhost:3000
+ ```
+
+
 
 
 ## Programming technology
