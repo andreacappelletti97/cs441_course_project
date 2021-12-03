@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 
 class EmailService {}
 
-object EmailService extends App{
+object EmailService {
   private val logger = CreateLogger(classOf[EmailService])
   private val config = ObtainConfigReference("emailService") match {
     case Some(value) => value
@@ -27,9 +27,12 @@ object EmailService extends App{
   val cfg = new Configuration
   val template = cfg.getTemplate(config.getString("emailService.emailTemplateDir"))
 
-//  populateTemplate(List("Message1", "Message2", "Message3"))
+  def main(array: Array[String]) : Unit = {
+    populateTemplate(List("Message1", "Message2", "Message3"))
+  }
 
-  def populateTemplate(logData : List[String]): String ={
+
+  def populateTemplate(logData : List[String]): String = {
     val data = scala.collection.mutable.Map[String, Object]()
     data += ("message1" -> logData(0))
     data += ("message2" -> logData(1))

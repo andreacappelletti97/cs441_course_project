@@ -1,3 +1,4 @@
+import AmazonSes.EmailService
 import Model.{CassLogModel, KafkaLogModel}
 import Util.{CreateLogger, ObtainConfigReference}
 import com.datastax.oss.driver.api.core.{ConsistencyLevel, CqlSession}
@@ -52,13 +53,47 @@ object SparkConsumer extends java.io.Serializable {
     // Listen To Stream Asynchronously
     dstream.foreachRDD(rdd => {
       if (rdd != null && !rdd.isEmpty()) {
+        // Save To Cass
         saveToCassandra(rdd)
+
+        // Send Email
+        sendErrorLogEmail(rdd)
       }
     })
 
     // Listen To Kafka Stream
     streamContext.start()
     streamContext.awaitTermination()
+  }
+
+  /**
+   * Send Email with error list using AWS SES
+   * @param errorList
+   */
+  def sendErrorLogEmail(rdd: RDD[CassLogModel]): Unit = {
+    val errorList = filterError(rdd);
+    if (errorList.size == 3) {
+      logger.info(s"Sending Email: ${errorList}")
+      EmailService.populateTemplate(errorList);
+    }
+  }
+
+  /**
+   * Get Error log type into a list
+   * @param RDD[CassLogModel]
+   * @return List[CassLogMode] with length of 3
+   */
+  def filterError(rdd: RDD[CassLogModel]): List[String] = {
+    val filteredRdd = rdd.filter(cassLogModel => {
+      if (cassLogModel != null)
+        cassLogModel.log_type == "ERROR"
+      else
+        false
+    })
+
+    val errorList = filteredRdd.take(3).toList
+    logger.info(s"Error List: ${errorList}")
+    errorList.map(clm => clm.log_message)
   }
 
   /**
@@ -80,7 +115,6 @@ object SparkConsumer extends java.io.Serializable {
   def saveToCassAws(rdd: RDD[CassLogModel]): Unit = {
     rdd.foreach(cassLogModel => {
       if (cassLogModel != null) {
-        println(s"saving: ${cassLogModel}")
         logger.info(s"saving: ${cassLogModel}")
         save(cassLogModel)
       }
