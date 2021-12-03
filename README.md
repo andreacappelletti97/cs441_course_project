@@ -422,6 +422,19 @@ class SparkConsumer \
 SparkConsumer.jar
  ```
 
+### Stakeholders notification
+
+We have design an email template to notify the stakeholders of the status of the system.
+
+The email template is made in HTML and implemented into Spark with freemarker.
+
+Freemarker allows us to bind variables into the template, in this case we decided to bind three log messages.
+
+![img.png](./docs/email.png)
+
+The stakeholders can then access to the dashboard and see the status of the overall system.
+
+This is expecially useful when failures happen or when we somehow predict that if the system meets certain conditions is likely to fail soon.
 
  ### YouTube Video
 
