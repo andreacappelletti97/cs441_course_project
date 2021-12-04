@@ -465,6 +465,9 @@ https://us-central1-nuklex-app.cloudfunctions.net/logDataFunction
 
  ## logDashboard
 
+
+Available at: http://ec2-54-193-76-157.us-west-1.compute.amazonaws.com:3000/
+
  The goal of this project is to retrieve the log data stored from Spark into Cassandra through
  the Google Cloud Api Function. Once retrieved, it provides a dashboard useful to analyse data statistics and to visualize the status of the system at any time.
 
@@ -475,7 +478,27 @@ https://us-central1-nuklex-app.cloudfunctions.net/logDataFunction
  In order to run the dashboard first you have to install all the project dependencies with NPM. 
 
  First install NPM from the official website https://www.npmjs.com/
- 
+
+ To install npm into an EC2 instance follow these steps
+ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html
+
+ Particularly run
+
+ ```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+ ```
+
+Then 
+ ```bash
+ . ~/.nvm/nvm.sh
+  ```
+
+Finally
+ ```bash
+nvm install node
+  ```
+
+
  Run from the root directory of the project
 
 ```javascript
@@ -487,6 +510,7 @@ And then deploy it with
 ```javascript
 npm run dev
  ```
+
 
 The output should look like
 
@@ -501,6 +525,17 @@ warn - You have enabled the JIT engine which is currently in preview.
 warn - Preview features are not covered by semver, may introduce breaking changes, and can change at any time.
 event - compiled successfully
  ```
+
+It can happen that you encounter the error
+```javascript
+Error message "error:0308010C:digital envelope routines::unsupported"
+ ```
+
+ To fix it run
+```javascript
+export NODE_OPTIONS=--openssl-legacy-provider
+ ```
+
 Now you can access the dashboard at the address specified by the output of the previous command.
 In this case
 
