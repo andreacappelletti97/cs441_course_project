@@ -20,20 +20,47 @@ UIN: 654073093
 tnguy276@uic.edu  
 
 ## Project
-This repository is organized into X different subprojects.
+This repository is organized into 6 different subprojects.
 
-- LogFileGenerator
+- logGenerator
 - MonitoringService
+- Akka-Kafka
+- Spark
+- cloudFunctions
+- logDashboard
 
 The following sections describe the functionalities implemented in all of them.
+
+## Youtube Playlist
+
+The documentation of our project is available on YouTube.
+We created a playlist in order to make the videos straightforward and divided by topic.
+
+https://www.youtube.com/playlist?list=PLfVw8NwC6k6n98mxJDiFBDzHKwUklbhW0
+
+
+## Project architecture
+
+
+We have design the overall architecture following this schema
+
+Multiple instances of the logGenerator are deployed on a EC2 instance running in different threads and storing their own log data
+in different folders. The Monitoring Service will watch for changes into those file and stream the changes to kafka.
+
+
+
+![alt text](docs/architecture.png)
+
+Spark is subscribed to the kafka topic and will get the data directly from there. Once the data are in Spark we drop an email to the stakeholders
+when certain conditions are met and we store all the data into Cassandra.
+
+The stakeholders can see the status of the system at any time thanks to our logDashboard.
+
+![alt text](docs/architecture2.png)
 
 ## LogFileGenerator
 
 The first project, logGenerator, provides an extension of the log generator coded by Professor Mark.
-
-We have design the overall architecture following this schema
-
-![alt text](docs/architecture.png)
 
 All the instances of the logGenerator will pack their own data, that are generated over multiple days, into a single log file. 
 
@@ -206,6 +233,28 @@ Every time a log file is updated, the corresponding Akka actor reacts to it and 
 This allows us to stop and restart the `MonitoringService` without notifying again the Kafka component about logs that were already been streamed before. 
 This means that the Redis Instance will contain N keys `LAST-TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored.
 
+### Installation Instructions
+- In addition to the JDK, the `MonitoringService` component requires the installation of Redis, that can be installed following the instruction on the official website: https://redis.io/topics/quickstart
+- Generate the JAR file for the `MonitoringService` with the following command:
+```
+sbt assembly
+```
+
+The default path of the generated JAR file is `target/LogMonitorService.jar` path.
+
+### Instructions for running the MonitoringService
+- The first step is to run the `LogGenerator` component as explained in the previous section
+- Then, we have to start Redis by running the `redis-server` command
+- Finally, we can start the `MonitoringService` application with the following command:
+  
+```
+java -jar LogMonitorServer.jar
+```
+
+### YouTube Video
+
+A video explaining the deployment of this component to AWS EC2 can be found at the following URL: https://youtu.be/AEMJd9joD1A
+
 ## AWS MSK Cluster
 
 In this project we will be using the AWS msk service to create a kafka cluster to which messages will be sent from the Log Monitor
@@ -297,6 +346,237 @@ sbt clean compile run
 ```
 5. We are now running the Monitoring Service and any new updates to the log file will produce messages that will be sent to the AWS MSK Kafka cluster.
 
+### YouTube Video
+
+A video explanation is available at this url: https://www.youtube.com/watch?v=SkdAaIDedUk&list=PLfVw8NwC6k6n98mxJDiFBDzHKwUklbhW0&index=3&t=21s
+
+
+## Spark-Streaming
+
+In this project, we will be using EMR to run our spark-stream application and Amazon keyspace to save all the data 
+about logs
+
+### Steps on how to create and set-up EMR:
+
+#### Create And Config EMR
+
+1. Navigate to EMR and click create cluster and go to advanced Options
+2. EMR released used for this project is: emr-5.33.1 (remember to check spark 2.4.7)
+3. Choose the same network VPC as Kafka above
+4. Chose a name and spin off an EMR cluster
+
+#### setup inbound and authorization between EMR and Kafka
+
+1. Go to kafka cluster click on Networking > Security group
+2. Copy the security group for EMR master (make sure it's not slave)
+3. Add inbound with type: **All traffic** and paste in the EMR security group as source and save
+4. Add **AmazonMSKFullAccess** to the default role for EMR when creating it **EMR_EC2_DefaultRole**,
+or add to the role that associate with the EMR master node
+5. Since MSK talk through SSL, you need get the generated kafka.client.truststore.jks when
+creating kafka, with the default password as "changeit" and put it in application.conf
+
+### Steps on how to create and set-up Amazon Keyspace:
+
+#### Create Amazon Keyspace 
+
+1. Navigate To Amazon Keyspace
+2. From the left-hand side Click on Keyspace and create a keyspace (log_gen_keyspace is the project's keyspace)
+3. From the left-hand side Click on table and create table with the below schema (log_data is the project's table)
+4. Set up keyspace and table in Spark project by going to src/main/resource/application.conf
+
+```
+Amazon Keyspace Table Schema
+
+file_name	text
+log_id		uuid
+log_message	text
+log_type	text
+timestamp	text
+```
+
+#### Set up connection to amazon keyspace
+
+![img.png](./docs/SparkConfig.png)
+
+1. Create an IAM user
+2. Add **AmazonKeyspacesFullAccess** to its permission
+3. click on **Security credentials** and scroll to the bottom and generate credential for Amazon Keyspace
+4. Insert new generated credential into **advanced.auth-provider.username** and **advanced.auth-provider.password**
+5. use **https://docs.aws.amazon.com/keyspaces/latest/devguide/programmatic.endpoints.html** to figure out the region
+for Amazon keyspace endpoint and replace it into basic.* and advanced.auth-provider.aws-region
+6. for ssl-engine-factory generate as below and put the truststore path and password correctly
+7. keep **class** configuration the same, do not change
+
+```
+curl https://certs.secureserver.net/repository/sf-class2-root.crt -O
+openssl x509 -outform der -in sf-class2-root.crt -out temp_file.der
+keytool -import -alias cassandra -keystore cassandra_truststore.jks -file temp_file.der
+
+For more informaion about amazon keyspace TLS:
+https://docs.aws.amazon.com/keyspaces/latest/devguide/using_java_driver.html#using_java_driver.BeforeYouBegin
+```
+
+> NOTE: you can simply skip step 6 and use the generated cassandra_truststore.jks from the project in **src/main/resource**
+
+### Deploy and Run
+
+1. From Spark Project, run: sbt assembly
+2. after jar file created, upload it to the master node in EMR using ssh
+3. make sure to upload both **cassandra_truststore.jks** and **kafka.client.truststore.jks**
+and put it in the same directory as the jar file
+4. Run the following command to remove signed jar problems
+
+```bash
+zip -d <jar file name>.jar META-INF/*.RSA META-INF/*.DSA META-INF/*.SF
+```
+
+5. then run spark-submit via the following:
+
+```bash
+spark-submit --master local[1] \
+class SparkConsumer \ 
+SparkConsumer.jar
+ ```
+
+### Stakeholders notification
+
+We have design an email template to notify the stakeholders of the status of the system.
+
+The email template is made in HTML and implemented into Spark with freemarker.
+
+Freemarker allows us to bind variables into the template, in this case we decided to bind three log messages.
+
+![img.png](./docs/email.png)
+
+The stakeholders can then access to the dashboard and see the status of the overall system.
+
+This is expecially useful when failures happen or when we somehow predict that if the system meets certain conditions is likely to fail soon.
+
+ ### YouTube Video
+
+A video explanation is available at this url: https://www.youtube.com/watch?v=LJEnlwDNrN8&list=PLfVw8NwC6k6n98mxJDiFBDzHKwUklbhW0&index=4
+
+
+ ## cloudFunctions
+
+ This project contains the backend for the following project (logDashboard).
+ 
+ The backend is developed in Node Js and it's goal is to retrieve the log data from Cassandra and provide an API to the logDashboard. 
+
+ We have deployed the entire project on Google Cloud because it was straightforward to integrate dependecies into the function with NPM (like Cassandra driver, aws auth ...).
+
+ The API is public and it can be accessed at this URL.
+
+https://us-central1-nuklex-app.cloudfunctions.net/logDataFunction
+
+ Just for simplicity we decided to provide the first 20 log messages. 
+ 
+ In the future a pageble query can be implemented to retrieve all the log messages or a get request with the timestamps as time interval.
+
+ ## logDashboard
+
+
+Available at: http://ec2-54-193-76-157.us-west-1.compute.amazonaws.com:3000/
+
+ The goal of this project is to retrieve the log data stored from Spark into Cassandra through
+ the Google Cloud Api Function. Once retrieved, it provides a dashboard useful to analyse data statistics and to visualize the status of the system at any time.
+
+ The dashboard has been realised using Typescript and NextJs.
+
+ For the purpose of the project we limit the data retrieval at the first 20 logs.
+
+ In order to run the dashboard first you have to install all the project dependencies with NPM. 
+
+ First install NPM from the official website https://www.npmjs.com/
+
+ To install npm into an EC2 instance follow these steps
+ https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html
+
+ Particularly run
+
+ ```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+ ```
+
+Then 
+ ```bash
+ . ~/.nvm/nvm.sh
+  ```
+
+Finally
+ ```bash
+nvm install node
+  ```
+
+
+ Run from the root directory of the project
+
+```javascript
+npm install
+ ```
+
+And then deploy it with
+
+```javascript
+npm run dev
+ ```
+
+
+The output should look like
+
+```bash
+> dashboard-logs@0.1.0 dev
+> next dev
+
+ready - started server on 0.0.0.0:3000, url: http://localhost:3000
+info  - Using webpack 4. Reason: future.webpack5 option disabled https://nextjs.org/docs/messages/webpack5
+
+warn - You have enabled the JIT engine which is currently in preview.
+warn - Preview features are not covered by semver, may introduce breaking changes, and can change at any time.
+event - compiled successfully
+ ```
+
+It can happen that you encounter the error
+```javascript
+Error message "error:0308010C:digital envelope routines::unsupported"
+ ```
+
+ To fix it run
+```javascript
+export NODE_OPTIONS=--openssl-legacy-provider
+ ```
+
+Now you can access the dashboard at the address specified by the output of the previous command.
+In this case
+
+```javascript
+http://localhost:3000
+ ```
+
+
+### YouTube Video
+
+A video explanation is available at this url: https://www.youtube.com/watch?v=lSPa13P6f9o
+
+The features provided by our dashboard are the following.
+
+### Overall overview of the log data (frequency and time window)
+![img.png](./docs/dashboard1.png)
+
+### Filter the log messages based on the type (ERROR, DEBUG, INFO ...)
+![img.png](./docs/dashboard2.png)
+
+### Visualize the log frequency of a particular type
+![img.png](./docs/dashboard3.png)
+
+### Take a deep look into the time window in order to understand the status of the system
+![img.png](./docs/dashboard4.png)
+
+### Take a look at the log messages in order to understand more about them
+![img.png](./docs/dashboard5.png)
+
+
+
 
 
 ## Programming technology
@@ -318,3 +598,11 @@ While writing the simulations the following best practices has been adopted
 ## References
 In order to produce the result obtained the following documents and paper
 have been consulted.
+
+- https://leanpub.com/edocc
+- https://www.vmware.com
+- https://aws.amazon.com/emr/
+- https://rockthejvm.com/
+- https://databricks.gitbooks.io/databricks-spark-reference-applications/content/logs_analyzer/index.html
+- https://www.confluent.io/resources/kafka-the-definitive-guide-v1/
+- https://www.docker.com/

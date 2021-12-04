@@ -6,4 +6,4 @@ CREATE KEYSPACE IF NOT EXISTS log_gen_keyspace
 
 USE log_gen_keyspace;
 
-CREATE TABLE log_gen_keyspace.log_data (log_id uuid PRIMARY KEY, timestamp text, log_type text, log_message text);
+CREATE TABLE log_gen_keyspace.log_data (log_id uuid PRIMARY KEY, file_name text, timestamp text, log_type text, log_message text);

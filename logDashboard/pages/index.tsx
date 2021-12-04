@@ -26,7 +26,7 @@ const sData = (log_id: string, log_type: LogLevel, timestamp: string) => ({
 
 });
 
-const data: LogData[] = [
+let data: LogData[] = [
   sData("11:30:47.670", 'WARN', '2021-02-17T23:20:59.000Z'),
   sData("11:30:47.670", 'WARN', '2021-02-17T23:20:59.000Z'),
   sData("11:30:47.670", 'WARN', '2021-02-17T23:20:59.000Z'),
@@ -34,6 +34,21 @@ const data: LogData[] = [
   sData("11:32:47.670", 'ERROR', '2021-02-17T23:20:59.000Z'),
   sData("11:31:47.670", 'DEBUG', '2021-02-17T23:20:59.000Z'),
 ];
+
+
+const yourUrl: string = 'https://us-central1-nuklex-app.cloudfunctions.net/logDataFunction';
+
+const myData = async () => {
+  return await (await (axios.get(yourUrl)).then(response => {
+    return response.data
+  })
+  .catch(error => {
+    console.log(error)
+  }))
+};
+
+
+
 
 interface LogPieChart {
   id: LogLevel;
@@ -226,7 +241,6 @@ export async function getServerSideProps(): Promise<
     const { data: resData } = await axios.get<LogData[]>(
       'http://localhost:3000/api/get-data'
     );
-
     return {
       props: {
         overallData: resData,
@@ -240,18 +254,26 @@ export async function getServerSideProps(): Promise<
       },
     };
   } catch (_) {
-    return {
+    const item = await myData()
+      //console.log(item)
+      console.log(item)
+      console.log("enter here111")
+      return {
       props: {
-        overallData: data,
-        sliding: slidingWindow(data),
+        overallData: item,
+        sliding: slidingWindow(item),
         lineData: logLevelList.map((ll) => ({
           id: ll,
           color: logLevelColors[ll],
-          data: groupLog(slidingWindow(data), ll),
+          data: groupLog(slidingWindow(item), ll),
         })),
-        pieData: dataToPieChart(data),
+        pieData: dataToPieChart(item),
       },
+      
     };
+
+
+  
   }
 }
 
