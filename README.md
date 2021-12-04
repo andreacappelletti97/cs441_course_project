@@ -44,7 +44,17 @@ https://www.youtube.com/playlist?list=PLfVw8NwC6k6n98mxJDiFBDzHKwUklbhW0
 
 We have design the overall architecture following this schema
 
+Multiple instances of the logGenerator are deployed on a EC2 instance running in different threads and storing their own log data
+in different folders. The Monitoring Service will watch for changes into those file and stream the changes to kafka.
+
+
+
 ![alt text](docs/architecture.png)
+
+Spark is subscribed to the kafka topic and will get the data directly from there. Once the data are in Spark we drop an email to the stakeholders
+when certain conditions are met and we store all the data into Cassandra.
+
+The stakeholders can see the status of the system at any time thanks to our logDashboard.
 
 ![alt text](docs/architecture2.png)
 
@@ -543,6 +553,11 @@ In this case
 http://localhost:3000
  ```
 
+
+### YouTube Video
+
+A video explanation is available at this url: https://www.youtube.com/watch?v=lSPa13P6f9o
+
 The features provided by our dashboard are the following.
 
 ### Overall overview of the log data (frequency and time window)
@@ -559,6 +574,7 @@ The features provided by our dashboard are the following.
 
 ### Take a look at the log messages in order to understand more about them
 ![img.png](./docs/dashboard5.png)
+
 
 
 
