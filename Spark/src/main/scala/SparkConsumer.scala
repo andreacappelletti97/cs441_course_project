@@ -1,10 +1,9 @@
 import AmazonSes.EmailService
-import Model.{CassLogModel, KafkaLogModel}
+import Model.CassLogModel
+import Util.Utility.{kafkaConfig, parseToLogModel}
 import Util.{CreateLogger, ObtainConfigReference}
 import com.datastax.oss.driver.api.core.{ConsistencyLevel, CqlSession}
-import io.circe.parser.parse
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
@@ -12,8 +11,6 @@ import org.apache.spark.streaming.kafka010.KafkaUtils
 import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
-
-import java.util.UUID
 
 class SparkConsumer
 
@@ -145,14 +142,7 @@ object SparkConsumer extends java.io.Serializable {
     stream
       .map(record => record.value())
       .map(logJson => {
-        val logEither = parse(logJson)
-        logEither match {
-          case Right(logModel) => logModel.as[KafkaLogModel] match {
-            case Right(logModel) => CassLogModel(UUID.randomUUID(), logModel.filename,logModel.message, logModel.level, logModel.timestamp)
-            case Left(_) => null
-          }
-          case Left(_) => null
-        }
+        parseToLogModel(logJson)
       })
   }
 
@@ -173,23 +163,4 @@ object SparkConsumer extends java.io.Serializable {
     logger.info(s"Topic: ${topics(0)}")
     stream
   }
-
-  /**
-   * Kafka configuration
-   * @return
-   */
-  def kafkaConfig(): Map[String, Object] = {
-    Map[String, Object](
-      "bootstrap.servers" -> s"${config.getString("spark.boostrap-server")}",
-      "key.deserializer" -> classOf[StringDeserializer],
-      "value.deserializer" -> classOf[StringDeserializer],
-      "group.id" -> config.getString("spark.groupId"),
-      "auto.offset.reset" -> config.getString("spark.offset"),
-      "enable.auto.commit" -> (false: java.lang.Boolean),
-      "security.protocol" -> "SSL",
-      "ssl.truststore.location" -> config.getString("spark.truststore-path"),
-      "ssl.truststore.password" -> config.getString("spark.truststore-password")
-    )
-  }
-
 }
