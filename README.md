@@ -7,7 +7,7 @@ Andrea Cappelletti
 UIN: 674197701   
 acappe2@uic.edu
 
-Ajay Sagar Nandimandalam
+Ajay Sagar Nandimandalam  
 UIN: 659867916  
 anandi6@uic.edu
 
