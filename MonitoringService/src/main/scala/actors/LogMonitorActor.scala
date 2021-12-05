@@ -136,6 +136,7 @@ class LogMonitorActor extends Actor {
     val newLogs: Vector[String] = TimestampIntervalBinarySearch.binarySearch(firstTimestampToSearch, endTime, lines, config)
 
     if (newLogs.nonEmpty) {
+      logger.info(s"New logs detected in ${logFile.getName} file...")
       redis.set(key = redisKey, value = newLogs.last.split(lineSeparator)(0))
       logger.info(s"publishing ${newLogs.size} logs to kafka")
       // communication with Kafka component happens here

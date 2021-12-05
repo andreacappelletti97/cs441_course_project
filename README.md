@@ -225,13 +225,13 @@ monitoringService {
 }
 ```
 
-As we can see, the base path corresponding to the directory that Akka actors are tracking for changes. In addition, it is necessary to configure the time windows that we want to consider when we are searching in log files in response to changes.
+As we can see, the base path corresponds to the directory that the Akka actors are tracking for changes. In addition, it is necessary to configure the time windows that we want to consider when we are searching in log files in response to changes.
 
-By setting `singleTimeWindow` to `false`, it's possible to set different monitored time windows for different log files, in order to have more flexibility in the performed monitoring.
+By setting `singleTimeWindow` to `false`, it's possible to set different monitored time windows for different log files, in order to have more flexibility in the log monitoring.
 
-Every time a log file is updated, the corresponding Akka actor reacts to it and the last timestamp that has already been passed to the Kafka component for the specific log file is stored in a local Redis instance. 
+Every time a log file is updated, the corresponding Akka actor reacts to it and the last timestamp that has been passed to the Kafka component for the specific log file is stored in a local Redis instance. 
 This allows us to stop and restart the `MonitoringService` without notifying again the Kafka component about logs that were already been streamed before. 
-This means that the Redis Instance will contain N keys `LAST-TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored.
+This means that the Redis Instance will contain N keys `LAST-TIMESTAMP-output1.log, LAST_TIMESTAMP-output2.log, ...`, with N that is the number of log files that are being monitored. The values for these keys will be the last observed log timestamp in each log file.
 
 ### Installation Instructions
 - In addition to the JDK, the `MonitoringService` component requires the installation of Redis, that can be installed following the instruction on the official website: https://redis.io/topics/quickstart
